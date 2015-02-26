@@ -27,13 +27,12 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.nunnerycode.mint.MintPlugin;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 
 public class MintCommand {
@@ -76,7 +75,7 @@ public class MintCommand {
                 TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
                 new String[][]{
                         {"%currency%",
-                         plugin.getEconomy().format(response.balance)}}));
+                                plugin.getEconomy().format(response.balance)}}));
     }
 
     @Command(identifier = "bank deposit", permissions = "mint.bank.deposit")
@@ -103,10 +102,12 @@ public class MintCommand {
                         TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
                         new String[][]{
                                 {"%currency%",
-                                 plugin.getEconomy().format(plugin.getEconomy().bankBalance(player.getUniqueId().toString()).balance)}}));
+                                        plugin.getEconomy().format(plugin.getEconomy()
+                                                .bankBalance(player.getUniqueId().toString()).balance)}}));
                 return;
             } else {
-                plugin.getDebugPrinter().log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
+                plugin.getDebugPrinter()
+                        .log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
             }
         } else {
             plugin.getDebugPrinter().log(Level.INFO, "could not deposit money in " + player.getUniqueId().toString());
@@ -136,7 +137,8 @@ public class MintCommand {
             player.sendMessage(TextUtils.args(
                     TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
                     new String[][]{
-                            {"%currency%", plugin.getEconomy().format(plugin.getEconomy().bankBalance(player.getUniqueId().toString()).balance)}}));
+                            {"%currency%", plugin.getEconomy().format(plugin.getEconomy()
+                                    .bankBalance(player.getUniqueId().toString()).balance)}}));
             return;
         }
         player.sendMessage(
@@ -155,20 +157,20 @@ public class MintCommand {
             return;
         }
         if (plugin.getEconomy().withdrawPlayer(player.getUniqueId().toString(), amount).transactionSuccess() &&
-            plugin.getEconomy().depositPlayer(target.getUniqueId().toString(), amount).transactionSuccess()) {
+                plugin.getEconomy().depositPlayer(target.getUniqueId().toString(), amount).transactionSuccess()) {
             player.sendMessage(TextUtils.args(
                     TextUtils.color(plugin.getSettings().getString("language.pay-success", "")),
                     new String[][]{{"%player%", target.getDisplayName()},
-                                   {"%currency%", plugin.getEconomy().format(Math.abs(amount))
-                                   }}));
+                            {"%currency%", plugin.getEconomy().format(Math.abs(amount))
+                            }}));
             target.sendMessage(TextUtils.args(
                     TextUtils.color(plugin.getSettings().getString("language.gain-money", "")),
                     new String[][]{{"%amount%", String.valueOf(amount)},
-                                   {"%money%", amount == 1D ? plugin.getEconomy()
-                                                                    .currencyNameSingular()
-                                                            : plugin.getEconomy()
-                                                                    .currencyNamePlural()},
-                                   {"%currency%", plugin.getEconomy().format(amount)}}));
+                            {"%money%", amount == 1D ? plugin.getEconomy()
+                                    .currencyNameSingular()
+                                    : plugin.getEconomy()
+                                    .currencyNamePlural()},
+                            {"%currency%", plugin.getEconomy().format(amount)}}));
             return;
         }
         player.sendMessage(TextUtils.color(plugin.getSettings().getString("language.pay-failure", "")));
@@ -181,12 +183,12 @@ public class MintCommand {
             return;
         }
         if (plugin.getEconomy().withdrawPlayer(player.getUniqueId().toString(), amount).transactionSuccess() &&
-            plugin.getEconomy().depositPlayer(target.getUniqueId().toString(), amount).transactionSuccess()) {
+                plugin.getEconomy().depositPlayer(target.getUniqueId().toString(), amount).transactionSuccess()) {
             player.sendMessage(TextUtils.args(
                     TextUtils.color(plugin.getSettings().getString("language.pay-success", "")),
                     new String[][]{{"%player%", target.getDisplayName()},
-                                   {"%currency%", plugin.getEconomy().format(Math.abs(amount))
-                                   }}));
+                            {"%currency%", plugin.getEconomy().format(Math.abs(amount))
+                            }}));
             return;
         }
         player.sendMessage(TextUtils.color(plugin.getSettings().getString("language.pay-failure", "")));
@@ -228,7 +230,7 @@ public class MintCommand {
         sender.sendMessage(TextUtils.args(
                 TextUtils.color(plugin.getSettings().getString("language.spawn-success", "")),
                 new String[][]{{"%currency%", plugin.getEconomy().format(Math.abs(amount))
-                               }}));
+                }}));
     }
 
     @Command(identifier = "mint balance", permissions = "mint.balance", onlyPlayers = false)
@@ -240,56 +242,9 @@ public class MintCommand {
 
     @Command(identifier = "pawn", permissions = "mint.pawn", onlyPlayers = true)
     public void pawnCommand(Player sender) {
-        ItemStack itemStack = sender.getItemInHand();
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.pawn-failure", ""));
-            return;
-        }
-        HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
-        if (hiltItemStack.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-            MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.pawn-failure", ""));
-            return;
-        }
-        List<String> lore = hiltItemStack.getLore();
-        double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
-        if (!lore.isEmpty()) {
-            amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
-            amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
-        }
-        if (amount <= 0D) {
-            MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.pawn-failure", ""));
-            return;
-        }
-        plugin.getDebugPrinter().log(Level.FINE, sender.getDisplayName() + " pawn amount: " + amount);
-        sender.getEquipment().setItemInHand(null);
-        MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.pawn-success", ""),
-                           new String[][]{{"%amount%", "" + hiltItemStack.getAmount()},{"%currency%", plugin.getEconomy().format(amount)}});
-        HiltItemStack wallet = null;
-        PlayerInventory pi = sender.getInventory();
-        for (ItemStack is : pi.getContents()) {
-            if (is == null || is.getType() == Material.AIR) {
-                continue;
-            }
-            HiltItemStack his = new HiltItemStack(is);
-            if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-                wallet = his;
-            }
-        }
-        if (wallet == null) {
-            wallet = new HiltItemStack(Material.PAPER);
-        }
-        pi.removeItem(wallet);
-        double b = plugin.getEconomy().getBalance(sender.getUniqueId().toString()) + amount;
-        if (Math.round(b) == 0D) {
-            return;
-        }
-        wallet.setName(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")));
-        wallet.setLore(TextUtils.args(
-                TextUtils.color(plugin.getSettings().getStringList("config.wallet.lore")),
-                new String[][]{{"%amount%", DF.format(b)},
-                               {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
-                                                         : plugin.getEconomy().currencyNamePlural()}}));
-        pi.addItem(wallet);
+        Inventory inventory = Bukkit.createInventory(null, InventoryType.CHEST,
+                TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")));
+        sender.openInventory(inventory);
     }
 
 }

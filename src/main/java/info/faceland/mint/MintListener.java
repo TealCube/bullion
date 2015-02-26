@@ -17,6 +17,7 @@ package info.faceland.mint;
 import com.sk89q.squirrelid.Profile;
 import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.ui.ActionBarMessage;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.CharMatcher;
@@ -25,7 +26,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,6 +39,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -46,6 +50,7 @@ import org.nunnerycode.mint.MintPlugin;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -304,6 +309,39 @@ public class MintListener implements Listener {
             if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!event.getInventory().getName().equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
+            return;
+        }
+        double value = 0D;
+        int amountSold = 0;
+        for (ItemStack itemStack : event.getInventory().getContents()) {
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
+                continue;
+            }
+            HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
+            if (hiltItemStack.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+                continue;
+            }
+            List<String> lore = hiltItemStack.getLore();
+            double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
+            if (!lore.isEmpty()) {
+                amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
+                amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
+            }
+            value += amount;
+        }
+        for (HumanEntity entity : event.getViewers()) {
+            if (!(entity instanceof Player)) {
+                continue;
+            }
+            plugin.getEconomy().depositPlayer((Player) entity, value);
+            MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
+                    new String[][]{{"%amount%", "" + amountSold}, {"%currency%", plugin.getEconomy().format(value)}});
         }
     }
 
