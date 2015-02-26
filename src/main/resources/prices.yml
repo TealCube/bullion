@@ -1,0 +1,7 @@
+version: "0.0.1"
+options:
+  lore:
+    base-price: 3
+    per-line: 1
+materials:
+  WOOD_SWORD: 5

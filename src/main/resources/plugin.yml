@@ -1,0 +1,38 @@
+main: org.nunnerycode.mint.MintPlugin
+name: @NAME@
+version: @VERSION@
+loadbefore: [dtlTraders, GlobalMarket]
+depend: [facecore, Vault]
+
+commands:
+  bank:
+    aliases: [b]
+  mint:
+    aliases: [m]
+  pay:
+    aliases: [p]
+  epay:
+    aliases: [e, ep]
+  pawn:
+    aliases: [pwn, pw]
+permissions:
+  mint.bank.create:
+    default: op
+  mint.bank.withdraw:
+    default: op
+  mint.bank.deposit:
+    default: op
+  mint.pay:
+    default: true
+  mint.epay:
+    default: op
+  mint.add:
+    default: op
+  mint.sub:
+    default: op
+  mint.pick-up-message:
+    default: true
+  mint.balance:
+    default: op
+  mint.pawn:
+    default: true

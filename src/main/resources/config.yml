@@ -1,0 +1,17 @@
+version: "0.0.4"
+database:
+  enabled: true
+  host: localhost
+  port: 3306
+  username: localuser
+  password: localpassword
+  database: localdb
+starting-balance: 0
+currency-singular: "Bit"
+currency-plural: "Bits"
+per-ten-blocks-mult: 0.01
+pay-distance-max: 25
+wallet:
+  name: "<dark green>My Wallet"
+  lore:
+  - "<white>%amount% <green>%currency%"
