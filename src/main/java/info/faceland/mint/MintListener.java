@@ -333,7 +333,7 @@ public class MintListener implements Listener {
                 amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
                 amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
             }
-            value += amount;
+            value += amount * hiltItemStack.getAmount();
         }
         for (HumanEntity entity : event.getViewers()) {
             if (!(entity instanceof Player)) {
