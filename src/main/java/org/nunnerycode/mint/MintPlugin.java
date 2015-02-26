@@ -51,7 +51,7 @@ public class MintPlugin extends FacePlugin {
 
     @Override
     public void enable() {
-        facecorePlugin = (FacecorePlugin) getServer().getPluginManager().getPlugin("facecore");
+        facecorePlugin = (FacecorePlugin) getServer().getPluginManager().getPlugin("Facecore");
         debugPrinter = new PluginLogger(this);
 
         VersionedSmartYamlConfiguration configYAML =
