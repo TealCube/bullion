@@ -51,6 +51,7 @@ public class MintPlugin extends FacePlugin {
 
     @Override
     public void enable() {
+        facecorePlugin = (FacecorePlugin) getServer().getPluginManager().getPlugin("facecore");
         debugPrinter = new PluginLogger(this);
 
         VersionedSmartYamlConfiguration configYAML =
@@ -124,8 +125,6 @@ public class MintPlugin extends FacePlugin {
         MintListener listener = new MintListener(this);
         Bukkit.getPluginManager().registerEvents(listener, this);
         new CommandHandler(this).registerCommands(new MintCommand(this));
-
-        facecorePlugin = (FacecorePlugin) getServer().getPluginManager().getPlugin("facecore");
     }
 
     @Override
