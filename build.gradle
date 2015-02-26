@@ -12,7 +12,7 @@ sourceCompatibility = "1.7"
 defaultTasks 'clean', 'licenseFormat', 'check', 'build'
 
 group = "com.tealcube.minecraft.bukkit"
-archivesBaseName = "mint"
+archivesBaseName = "bullion"
 version = "1.0.0-SNAPSHOT"
 
 repositories {
@@ -52,7 +52,7 @@ license {
 publishing {
     publications {
         java(MavenPublication) {
-            artifactId = "mint"
+            artifactId = "bullion"
             from components.java
         }
     }
