@@ -2,7 +2,7 @@ main: org.nunnerycode.mint.MintPlugin
 name: @NAME@
 version: @VERSION@
 loadbefore: [dtlTraders, GlobalMarket]
-depend: [facecore, Vault]
+depend: [Facecore, Vault]
 
 commands:
   bank:
