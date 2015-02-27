@@ -67,19 +67,7 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMintEvent(MintEvent mintEvent) {
-        Optional<Profile> profile = plugin.getFacecore().getPlayerResolver().getProfile(mintEvent.getUuid());
-        if (!profile.isPresent()) {
-            try {
-                UUID uuid = UUID.fromString(mintEvent.getUuid());
-                profile = plugin.getFacecore().getPlayerResolver().getProfile(uuid);
-            } catch (IllegalArgumentException e) {
-                // do nothing
-            }
-        }
-        if (!profile.isPresent()) {
-            return;
-        }
-        Player player = Bukkit.getPlayer(profile.get().getUniqueId());
+        Player player = Bukkit.getPlayer(UUID.fromString(mintEvent.getUuid()));
         if (player == null) {
             return;
         }
