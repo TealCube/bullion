@@ -22,6 +22,7 @@ import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Optional;
+import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -40,6 +41,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -330,6 +332,15 @@ public class MintListener implements Listener {
             plugin.getEconomy().depositPlayer((Player) entity, value);
             MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
                     new String[][]{{"%amount%", "" + amountSold}, {"%currency%", plugin.getEconomy().format(value)}});
+        }
+    }
+
+    @EventHandler
+    public void onInventoryPickupItem(InventoryPickupItemEvent event) {
+        HiltItemStack his = new HiltItemStack(event.getItem().getItemStack());
+        if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""))) || his.getName().equals(
+                ChatColor.GOLD + "REWARD!")) {
+            event.setCancelled(true);
         }
     }
 
