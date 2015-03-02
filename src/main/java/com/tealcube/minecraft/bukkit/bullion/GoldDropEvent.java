@@ -12,31 +12,40 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package info.faceland.mint;
+package com.tealcube.minecraft.bukkit.bullion;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import info.faceland.mint.MintEvent;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityEvent;
 
-public class MintEvent extends Event {
+public class GoldDropEvent extends MintEvent {
 
-    private static final HandlerList HANDLER_LIST = new HandlerList();
-    private final String uuid;
+    private final Player killer;
+    private final LivingEntity livingEntity;
+    private double amount;
 
-    public MintEvent(String uuid) {
-        this.uuid = uuid;
+    public GoldDropEvent(Player killer, LivingEntity livingEntity, double amount) {
+        super(killer.getUniqueId().toString());
+        this.killer = killer;
+        this.livingEntity = livingEntity;
+        this.amount = amount;
     }
 
-    public static HandlerList getHandlerList() {
-        return HANDLER_LIST;
+    public Player getKiller() {
+        return killer;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLER_LIST;
+    public LivingEntity getLivingEntity() {
+        return livingEntity;
     }
 
-    public String getUuid() {
-        return uuid;
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * This file is part of Mint, licensed under the ISC License.
+ * This file is part of Bullion, licensed under the ISC License.
  *
  * Copyright (c) 2014 Richard Harrah
  *
@@ -14,20 +14,17 @@
  */
 package info.faceland.mint;
 
-import com.sk89q.squirrelid.Profile;
+import com.tealcube.minecraft.bukkit.bullion.GoldDropEvent;
 import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.ui.ActionBarMessage;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.CharMatcher;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Optional;
-import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
@@ -135,9 +132,11 @@ public class MintListener implements Listener {
         if (reward == 0D) {
             return;
         }
+        GoldDropEvent gde = new GoldDropEvent(event.getEntity().getKiller(), event.getEntity(), reward);
+        Bukkit.getPluginManager().callEvent(gde);
         HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
         his.setName(ChatColor.GOLD + "REWARD!");
-        his.setLore(Arrays.asList(DF.format(reward)));
+        his.setLore(Arrays.asList(DF.format(gde.getAmount())));
         event.getDrops().add(his);
     }
 
@@ -304,7 +303,8 @@ public class MintListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!event.getInventory().getName().equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
+        if (!event.getInventory().getName()
+                .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
             return;
         }
         double value = 0D;
@@ -314,7 +314,8 @@ public class MintListener implements Listener {
                 continue;
             }
             HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
-            if (hiltItemStack.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+            if (hiltItemStack.getName()
+                    .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
                 continue;
             }
             List<String> lore = hiltItemStack.getLore();
@@ -338,8 +339,9 @@ public class MintListener implements Listener {
     @EventHandler
     public void onInventoryPickupItem(InventoryPickupItemEvent event) {
         HiltItemStack his = new HiltItemStack(event.getItem().getItemStack());
-        if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""))) || his.getName().equals(
-                ChatColor.GOLD + "REWARD!")) {
+        if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""))) ||
+                his.getName().equals(
+                        ChatColor.GOLD + "REWARD!")) {
             event.setCancelled(true);
         }
     }
