@@ -17,7 +17,6 @@ package com.tealcube.minecraft.bukkit.bullion;
 import info.faceland.mint.MintEvent;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityEvent;
 
 public class GoldDropEvent extends MintEvent {
 
@@ -26,7 +25,7 @@ public class GoldDropEvent extends MintEvent {
     private double amount;
 
     public GoldDropEvent(Player killer, LivingEntity livingEntity, double amount) {
-        super(killer.getUniqueId().toString());
+        super(killer != null ? killer.getUniqueId().toString() : "");
         this.killer = killer;
         this.livingEntity = livingEntity;
         this.amount = amount;
