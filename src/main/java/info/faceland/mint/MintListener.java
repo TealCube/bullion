@@ -66,6 +66,9 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMintEvent(MintEvent mintEvent) {
+        if (mintEvent.getUuid().equals("")) {
+            return;
+        }
         Player player = Bukkit.getPlayer(UUID.fromString(mintEvent.getUuid()));
         if (player == null) {
             return;
