@@ -240,11 +240,11 @@ public class MintCommand {
                         {"%currency%", plugin.getEconomy().format(plugin.getEconomy().getBalance(target))}});
     }
 
-    @Command(identifier = "pawn", permissions = "mint.pawn", onlyPlayers = true)
-    public void pawnCommand(Player sender) {
+    @Command(identifier = "pawn", permissions = "mint.pawn", onlyPlayers = false)
+    public void pawnCommand(CommandSender sender, @Arg(name = "target", def = "?sender") Player target) {
         Inventory inventory = Bukkit.createInventory(null, InventoryType.CHEST,
                 TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")));
-        sender.openInventory(inventory);
+        target.openInventory(inventory);
     }
 
 }
