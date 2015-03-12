@@ -20,11 +20,7 @@ import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.methodcommand.Arg;
 import com.tealcube.minecraft.bukkit.kern.methodcommand.Command;
 import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -87,6 +83,32 @@ public class MintCommand {
                     TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
             return;
         }
+        if (amount < 0) {
+            if (plugin.getEconomy().bankDeposit(player.getUniqueId().toString(), plugin.getEconomy().getBalance(
+                    player.getUniqueId().toString())).transactionSuccess()) {
+                if (plugin.getEconomy().withdrawPlayer(player.getUniqueId().toString(), plugin.getEconomy().getBalance(
+                        player.getUniqueId().toString())).transactionSuccess()) {
+                    player.sendMessage(TextUtils.args(
+                            TextUtils.color(plugin.getSettings().getString("language.bank-deposit-success", "")),
+                            new String[][]{{"%currency%", plugin.getEconomy().format(amount)}}));
+                    player.sendMessage(TextUtils.args(
+                            TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
+                            new String[][]{
+                                    {"%currency%",
+                                            plugin.getEconomy().format(plugin.getEconomy()
+                                                    .bankBalance(player.getUniqueId().toString()).balance)}}));
+                    return;
+                } else {
+                    plugin.getDebugPrinter()
+                            .log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
+                }
+            } else {
+                plugin.getDebugPrinter().log(Level.INFO, "could not deposit money in " + player.getUniqueId().toString());
+            }
+            player.sendMessage(
+                    TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
+            return;
+        }
         if (!plugin.getEconomy().has(player.getUniqueId().toString(), amount)) {
             plugin.getDebugPrinter().log(Level.INFO, player.getUniqueId().toString() + " does not have enough money");
             player.sendMessage(
@@ -97,7 +119,7 @@ public class MintCommand {
             if (plugin.getEconomy().withdrawPlayer(player.getUniqueId().toString(), amount).transactionSuccess()) {
                 player.sendMessage(TextUtils.args(
                         TextUtils.color(plugin.getSettings().getString("language.bank-deposit-success", "")),
-                        new String[][]{{"%currency%", plugin.getEconomy().format(amount)}}));
+                        new String[][]{{"%currency%", "all of your bits"}}));
                 player.sendMessage(TextUtils.args(
                         TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
                         new String[][]{
@@ -120,6 +142,32 @@ public class MintCommand {
     public void bankWithdraw(Player player, @Arg(name = "amount") double amount) {
         EconomyResponse response = plugin.getEconomy().bankBalance(player.getUniqueId().toString());
         if (!response.transactionSuccess()) {
+            player.sendMessage(
+                    TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-failure", "")));
+            return;
+        }
+        if (amount < 0) {
+            if (plugin.getEconomy().depositPlayer(player.getUniqueId().toString(), plugin.getEconomy().bankBalance(
+                    player.getUniqueId().toString()).balance).transactionSuccess()) {
+                if (plugin.getEconomy().bankWithdraw(player.getUniqueId().toString(), plugin.getEconomy().bankBalance(
+                        player.getUniqueId().toString()).balance).transactionSuccess()) {
+                    player.sendMessage(TextUtils.args(
+                            TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-success", "")),
+                            new String[][]{{"%currency%", "all of your bits."}}));
+                    player.sendMessage(TextUtils.args(
+                            TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
+                            new String[][]{
+                                    {"%currency%",
+                                            plugin.getEconomy().format(plugin.getEconomy()
+                                                    .bankBalance(player.getUniqueId().toString()).balance)}}));
+                    return;
+                } else {
+                    plugin.getDebugPrinter()
+                            .log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
+                }
+            } else {
+                plugin.getDebugPrinter().log(Level.INFO, "could not deposit money in " + player.getUniqueId().toString());
+            }
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-failure", "")));
             return;
