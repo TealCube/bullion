@@ -191,25 +191,6 @@ public class MintListener implements Listener {
         his.setLore(Arrays.asList(DF.format(amount) + ""));
         event.getEntity().getWorld().dropItemNaturally(event.getEntity().getLocation(), his);
         plugin.getEconomy().withdrawPlayer(event.getEntity().getUniqueId().toString(), amount);
-        event.getDrops().clear();
-        for (ItemStack itemStack : event.getEntity().getInventory().getContents()) {
-            if (itemStack == null || itemStack.getType() == Material.AIR) {
-                continue;
-            }
-            HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
-            if (hiltItemStack.getName().equals(TextUtils.color(
-                    plugin.getSettings().getString("config.wallet.name", "")))) {
-                continue;
-            }
-            event.getDrops().add(hiltItemStack);
-        }
-        for (ItemStack itemStack : event.getEntity().getInventory().getArmorContents()) {
-            if (itemStack == null || itemStack.getType() == Material.AIR) {
-                continue;
-            }
-            HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
-            event.getDrops().add(hiltItemStack);
-        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
