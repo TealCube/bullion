@@ -89,14 +89,14 @@ public class MintCommand {
                 if (plugin.getEconomy().withdrawPlayer(player.getUniqueId().toString(), plugin.getEconomy().getBalance(
                         player.getUniqueId().toString())).transactionSuccess()) {
                     player.sendMessage(TextUtils.args(
-                            TextUtils.color(plugin.getSettings().getString("language.bank-deposit-success", "")),
-                            new String[][]{{"%currency%", plugin.getEconomy().format(amount)}}));
+                        TextUtils.color(plugin.getSettings().getString("language.bank-deposit-success", "")),
+                        new String[][]{{"%currency%", "EVERYTHING"}}));
                     player.sendMessage(TextUtils.args(
-                            TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
-                            new String[][]{
-                                    {"%currency%",
-                                            plugin.getEconomy().format(plugin.getEconomy()
-                                                    .bankBalance(player.getUniqueId().toString()).balance)}}));
+                        TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
+                        new String[][]{
+                            {"%currency%",
+                             plugin.getEconomy().format(plugin.getEconomy()
+                                                            .bankBalance(player.getUniqueId().toString()).balance)}}));
                     return;
                 } else {
                     plugin.getDebugPrinter()
@@ -118,14 +118,14 @@ public class MintCommand {
         if (plugin.getEconomy().bankDeposit(player.getUniqueId().toString(), amount).transactionSuccess()) {
             if (plugin.getEconomy().withdrawPlayer(player.getUniqueId().toString(), amount).transactionSuccess()) {
                 player.sendMessage(TextUtils.args(
-                        TextUtils.color(plugin.getSettings().getString("language.bank-deposit-success", "")),
-                        new String[][]{{"%currency%", "all of your bits"}}));
+                    TextUtils.color(plugin.getSettings().getString("language.bank-deposit-success", "")),
+                    new String[][]{{"%currency%", plugin.getEconomy().format(amount)}}));
                 player.sendMessage(TextUtils.args(
-                        TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
-                        new String[][]{
-                                {"%currency%",
-                                        plugin.getEconomy().format(plugin.getEconomy()
-                                                .bankBalance(player.getUniqueId().toString()).balance)}}));
+                    TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
+                    new String[][]{
+                        {"%currency%",
+                         plugin.getEconomy().format(plugin.getEconomy()
+                                                        .bankBalance(player.getUniqueId().toString()).balance)}}));
                 return;
             } else {
                 plugin.getDebugPrinter()
@@ -153,7 +153,7 @@ public class MintCommand {
                         player.getUniqueId().toString()).balance).transactionSuccess()) {
                     player.sendMessage(TextUtils.args(
                             TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-success", "")),
-                            new String[][]{{"%currency%", "all of your bits."}}));
+                            new String[][]{{"%currency%", "EVERYTHING"}}));
                     player.sendMessage(TextUtils.args(
                             TextUtils.color(plugin.getSettings().getString("language.bank-balance", "")),
                             new String[][]{
