@@ -69,7 +69,13 @@ public class MintListener implements Listener {
         if (mintEvent.getUuid().equals("")) {
             return;
         }
-        Player player = Bukkit.getPlayer(UUID.fromString(mintEvent.getUuid()));
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(mintEvent.getUuid());
+        } catch (IllegalArgumentException e) {
+            uuid = Bukkit.getPlayer(mintEvent.getUuid()).getUniqueId();
+        }
+        Player player = Bukkit.getPlayer(uuid);
         if (player == null) {
             return;
         }
