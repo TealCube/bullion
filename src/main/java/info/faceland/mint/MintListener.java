@@ -317,8 +317,9 @@ public class MintListener implements Listener {
             String strippedName = ChatColor.stripColor(hiltItemStack.getName());
             if (plugin.getSettings().getDouble("prices.names." + strippedName, 0D) >= 0D) {
                 value += plugin.getSettings().getDouble("prices.names." + strippedName, 0D);
+            } else {
+                value += amount * hiltItemStack.getAmount();
             }
-            value += amount * hiltItemStack.getAmount();
         }
         for (HumanEntity entity : event.getViewers()) {
             if (!(entity instanceof Player)) {
