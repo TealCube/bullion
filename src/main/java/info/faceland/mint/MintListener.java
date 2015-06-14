@@ -3,13 +3,16 @@
  *
  * Copyright (c) 2014 Richard Harrah
  *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
+ * Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby
+ * granted,
  * provided that the above copyright notice and this permission notice appear in all copies.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF
  * THIS SOFTWARE.
  */
 package info.faceland.mint;
@@ -35,11 +38,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
@@ -47,11 +46,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.nunnerycode.mint.MintPlugin;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class MintListener implements Listener {
 
@@ -107,8 +102,8 @@ public class MintListener implements Listener {
         wallet.setLore(TextUtils.args(
                 TextUtils.color(plugin.getSettings().getStringList("config.wallet.lore")),
                 new String[][]{{"%amount%", DF.format(b)},
-                        {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
-                                : plugin.getEconomy().currencyNamePlural()}}));
+                               {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
+                                                         : plugin.getEconomy().currencyNamePlural()}}));
         if (index == -1) {
             pi.addItem(wallet);
         } else {
@@ -134,8 +129,8 @@ public class MintListener implements Listener {
         Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
         Location entityLoc = event.getEntity().getLocation();
         double distanceSquared = Math.pow(worldSpawn.getX() - entityLoc.getX(), 2) + Math.pow(worldSpawn.getZ() -
-                        entityLoc.getZ(),
-                2);
+                                                                                                      entityLoc.getZ(),
+                                                                                              2);
         reward += reward * (distanceSquared / Math.pow(10D, 2D))
                 * plugin.getSettings().getDouble("config.per-ten-blocks-mult", 0.0);
         if (reward == 0D) {
@@ -176,7 +171,11 @@ public class MintListener implements Listener {
         event.getItem().remove();
         event.setCancelled(true);
         new ActionBarMessage("<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy()
-                .getBalance(event.getPlayer())).replace(" ", ChatColor.GREEN + " ")).send(event.getPlayer());
+                                                                                              .getBalance(
+                                                                                                      event.getPlayer
+                                                                                                              ()))
+                                                                   .replace(" ", ChatColor.GREEN + " ")).send(
+                event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -221,7 +220,7 @@ public class MintListener implements Listener {
             case PAPER:
                 HiltItemStack walletStack = new HiltItemStack(event.getEntity().getItemStack());
                 if (walletStack.getName()
-                        .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
+                               .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
                     if (walletStack.getLore().isEmpty()) {
                         return;
                     }
@@ -294,7 +293,7 @@ public class MintListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!event.getInventory().getName()
-                .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
+                  .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
             return;
         }
         double value = 0D;
@@ -305,7 +304,7 @@ public class MintListener implements Listener {
             }
             HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
             if (hiltItemStack.getName()
-                    .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+                             .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
                 continue;
             }
             List<String> lore = hiltItemStack.getLore();
@@ -315,7 +314,8 @@ public class MintListener implements Listener {
                 amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
             }
             String strippedName = ChatColor.stripColor(hiltItemStack.getName());
-            if (plugin.getSettings().getDouble("prices.names." + strippedName, 0D) >= 0D) {
+            if (!strippedName.equals(hiltItemStack.getDefaultName()) && plugin.getSettings().getDouble(
+                    "prices.names." + strippedName, 0D) >= 0D) {
                 value += plugin.getSettings().getDouble("prices.names." + strippedName, 0D) * hiltItemStack.getAmount();
             } else {
                 value += amount * hiltItemStack.getAmount();
@@ -327,7 +327,8 @@ public class MintListener implements Listener {
             }
             plugin.getEconomy().depositPlayer((Player) entity, value);
             MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
-                    new String[][]{{"%amount%", "" + amountSold}, {"%currency%", plugin.getEconomy().format(value)}});
+                                     new String[][]{{"%amount%", "" + amountSold},
+                                                    {"%currency%", plugin.getEconomy().format(value)}});
         }
     }
 
