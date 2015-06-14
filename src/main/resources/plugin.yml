@@ -1,8 +1,8 @@
 main: org.nunnerycode.mint.MintPlugin
 name: @NAME@
 version: @VERSION@
-loadbefore: [dtlTraders, GlobalMarket, BossShop]
 depend: [Facecore, Vault]
+load: startup
 
 commands:
   bank:
