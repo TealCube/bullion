@@ -29,7 +29,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.tealcube.minecraft.bukkit:facecore-all:1.0.0-SNAPSHOT"
+    compile "com.tealcube.minecraft.bukkit:facecore-all:1.0.0"
     compile "net.milkbowl.vault:VaultAPI:1.5"
 }
 
