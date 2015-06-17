@@ -314,7 +314,7 @@ public class MintListener implements Listener {
                 amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
             }
             String strippedName = ChatColor.stripColor(hiltItemStack.getName());
-            if (plugin.getSettings().getSettingMap().containsKey("prices.names." + strippedName)) {
+            if (plugin.getSettings().isSet("prices.names." + strippedName)) {
                 value += plugin.getSettings().getDouble("prices.names." + strippedName, 0D) * hiltItemStack.getAmount();
             } else {
                 value += amount * hiltItemStack.getAmount();
