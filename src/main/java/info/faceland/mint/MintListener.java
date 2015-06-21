@@ -38,7 +38,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
@@ -76,17 +79,14 @@ public class MintListener implements Listener {
         }
         PlayerInventory pi = player.getInventory();
         HiltItemStack wallet = null;
-        int index = -1;
         ItemStack[] contents = pi.getContents();
-        for (int i = 0; i < contents.length; i++) {
-            ItemStack is = contents[i];
+        for (ItemStack is : contents) {
             if (is == null || is.getType() == Material.AIR) {
                 continue;
             }
             HiltItemStack his = new HiltItemStack(is);
             if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
                 wallet = his;
-                index = i;
             }
         }
         if (wallet == null) {
@@ -104,10 +104,12 @@ public class MintListener implements Listener {
                 new String[][]{{"%amount%", DF.format(b)},
                                {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
                                                          : plugin.getEconomy().currencyNamePlural()}}));
-        if (index == -1) {
-            pi.addItem(wallet);
+        if (pi.getItem(8) != null && pi.getItem(8).getType() != Material.AIR) {
+            ItemStack old = new HiltItemStack(pi.getItem(8));
+            pi.setItem(8, wallet);
+            pi.addItem(old);
         } else {
-            pi.setItem(index, wallet);
+            pi.setItem(8, wallet);
         }
         player.updateInventory();
     }
@@ -274,19 +276,16 @@ public class MintListener implements Listener {
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
-        if (event.getInventory().getType() == InventoryType.CHEST ||
-                event.getInventory().getType() == InventoryType.ENDER_CHEST) {
-            ItemStack is = event.getCurrentItem();
-            if (is == null || is.getType() == Material.AIR) {
-                return;
-            }
-            HiltItemStack his = new HiltItemStack(is);
-            if (his.getLore().size() < 1) {
-                return;
-            }
-            if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-                event.setCancelled(true);
-            }
+        ItemStack is = event.getCurrentItem();
+        if (is == null || is.getType() == Material.AIR) {
+            return;
+        }
+        HiltItemStack his = new HiltItemStack(is);
+        if (his.getLore().size() < 1) {
+            return;
+        }
+        if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+            event.setCancelled(true);
         }
     }
 
