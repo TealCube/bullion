@@ -95,9 +95,6 @@ public class MintListener implements Listener {
         pi.removeItem(wallet);
         player.updateInventory();
         double b = plugin.getEconomy().getBalance(player);
-        if (b == 0.00D) {
-            return;
-        }
         wallet.setName(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")));
         wallet.setLore(TextUtils.args(
                 TextUtils.color(plugin.getSettings().getStringList("config.wallet.lore")),
