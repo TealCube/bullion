@@ -104,12 +104,12 @@ public class MintListener implements Listener {
                 new String[][]{{"%amount%", DF.format(b)},
                                {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
                                                          : plugin.getEconomy().currencyNamePlural()}}));
-        if (pi.getItem(8) != null && pi.getItem(8).getType() != Material.AIR) {
-            ItemStack old = new HiltItemStack(pi.getItem(8));
-            pi.setItem(8, wallet);
+        if (pi.getItem(17) != null && pi.getItem(17).getType() != Material.AIR) {
+            ItemStack old = new HiltItemStack(pi.getItem(17));
+            pi.setItem(17, wallet);
             pi.addItem(old);
         } else {
-            pi.setItem(8, wallet);
+            pi.setItem(17, wallet);
         }
         player.updateInventory();
     }
