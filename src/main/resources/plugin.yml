@@ -1,6 +1,6 @@
 main: org.nunnerycode.mint.MintPlugin
-name: @NAME@
-version: @VERSION@
+name: Bullion
+version: ${project.version}
 depend: [Facecore, Vault]
 load: startup
 
