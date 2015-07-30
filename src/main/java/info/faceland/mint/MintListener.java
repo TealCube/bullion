@@ -33,6 +33,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
@@ -168,6 +169,8 @@ public class MintListener implements Listener {
         if (name == null) {
             return;
         }
+
+        event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.CHICKEN_EGG_POP, 0.8F, 2);
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
         double amount = NumberUtils.toDouble(replaced);
