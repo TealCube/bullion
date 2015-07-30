@@ -88,7 +88,7 @@ public class MintCommand {
         if (!response.transactionSuccess()) {
             plugin.getDebugPrinter().log(Level.INFO, "no bank exists for " + player.getUniqueId().toString());
             player.sendMessage(
-                    TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
+                    TextUtils.color(plugin.getSettings().getString("language.bank-no-account", "")));
             return;
         }
         if (amount < 0) {
@@ -151,7 +151,7 @@ public class MintCommand {
         EconomyResponse response = plugin.getEconomy().bankBalance(player.getUniqueId().toString());
         if (!response.transactionSuccess()) {
             player.sendMessage(
-                    TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-failure", "")));
+                    TextUtils.color(plugin.getSettings().getString("language.bank-no-account", "")));
             return;
         }
         if (amount < 0) {
