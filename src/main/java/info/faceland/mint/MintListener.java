@@ -177,12 +177,9 @@ public class MintListener implements Listener {
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
-        new ActionBarMessage("<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy()
-                                                                                              .getBalance(
-                                                                                                      event.getPlayer
-                                                                                                              ()))
-                                                                   .replace(" ", ChatColor.GREEN + " ")).send(
-                event.getPlayer());
+        String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
+                event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
+        ActionBarMessage.send(event.getPlayer(), message);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
