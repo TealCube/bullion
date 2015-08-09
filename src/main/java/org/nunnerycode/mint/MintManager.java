@@ -22,7 +22,7 @@
  */
 package org.nunnerycode.mint;
 
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.Validate;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
 import org.nunnerycode.mint.accounts.BankAccount;
 import org.nunnerycode.mint.accounts.PlayerAccount;
 

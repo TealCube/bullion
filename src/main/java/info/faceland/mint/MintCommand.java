@@ -22,8 +22,8 @@
  */
 package info.faceland.mint;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;

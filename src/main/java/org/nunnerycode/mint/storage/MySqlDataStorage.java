@@ -23,9 +23,9 @@
 package org.nunnerycode.mint.storage;
 
 import com.tealcube.minecraft.bukkit.facecore.database.MySqlDatabasePool;
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.Validate;
 import com.tealcube.minecraft.bukkit.kern.io.CloseableRegistry;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Optional;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.Optional;
 import org.nunnerycode.mint.accounts.BankAccount;
 import org.nunnerycode.mint.accounts.PlayerAccount;
 

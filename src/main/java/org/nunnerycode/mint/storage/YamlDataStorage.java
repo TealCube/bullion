@@ -23,8 +23,8 @@
 package org.nunnerycode.mint.storage;
 
 import com.tealcube.minecraft.bukkit.config.SmartYamlConfiguration;
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.Validate;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Optional;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.Optional;
 import org.bukkit.configuration.ConfigurationSection;
 import org.nunnerycode.mint.MintPlugin;
 import org.nunnerycode.mint.accounts.BankAccount;
