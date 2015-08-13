@@ -159,6 +159,7 @@ public class MintListener implements Listener {
         }
         Item item = event.getItem();
         HiltItemStack hiltItemStack = new HiltItemStack(item.getItemStack());
+        int stacksize = hiltItemStack.getAmount();
         if (hiltItemStack.getType() != Material.GOLD_NUGGET) {
             return;
         }
@@ -173,7 +174,7 @@ public class MintListener implements Listener {
         event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.CHICKEN_EGG_POP, 0.8F, 2);
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
-        double amount = NumberUtils.toDouble(replaced);
+        double amount = stacksize * NumberUtils.toDouble(replaced);
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
