@@ -22,9 +22,9 @@
  */
 package info.faceland.mint;
 
-import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
