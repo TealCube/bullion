@@ -330,10 +330,12 @@ public class MintListener implements Listener {
             if (!(entity instanceof Player)) {
                 continue;
             }
-            plugin.getEconomy().depositPlayer((Player) entity, value);
-            MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
-                                     new String[][]{{"%amount%", "" + amountSold},
-                                                    {"%currency%", plugin.getEconomy().format(value)}});
+            if (value > 0) {
+                plugin.getEconomy().depositPlayer((Player) entity, value);
+                MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
+                                         new String[][]{{"%amount%", "" + amountSold},
+                                                        {"%currency%", plugin.getEconomy().format(value)}});
+            }
         }
     }
 
