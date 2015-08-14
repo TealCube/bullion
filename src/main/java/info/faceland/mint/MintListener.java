@@ -238,14 +238,11 @@ public class MintListener implements Listener {
                     event.getEntity().setItemStack(nugget);
                     event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
                     event.getEntity().setCustomNameVisible(true);
-                    Bukkit.getLogger().info("you should see this");
                 }
-                Bukkit.getLogger().info("if no previous message, this is where the problem is, kyle #3");
                 break;
             case GOLD_NUGGET:
                 HiltItemStack nuggetStack = new HiltItemStack(event.getEntity().getItemStack());
                 if (!nuggetStack.getName().equals(ChatColor.GOLD + "REWARD!") || nuggetStack.getLore().isEmpty()) {
-                    Bukkit.getLogger().info("this is where the problem is, kyle #1");
                     return;
                 }
                 String s = nuggetStack.getLore().get(0);
@@ -253,7 +250,6 @@ public class MintListener implements Listener {
                 double amount = NumberUtils.toDouble(stripped);
                 if (amount <= 0.00D) {
                     event.setCancelled(true);
-                    Bukkit.getLogger().info("this is where the problem is, kyle #2");
                     return;
                 }
                 HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
