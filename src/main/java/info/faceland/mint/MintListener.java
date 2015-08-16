@@ -105,8 +105,8 @@ public class MintListener implements Listener {
         wallet.setLore(TextUtils.args(
                 TextUtils.color(plugin.getSettings().getStringList("config.wallet.lore")),
                 new String[][]{{"%amount%", DF.format(b)},
-                               {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
-                                                         : plugin.getEconomy().currencyNamePlural()}}));
+                        {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
+                                : plugin.getEconomy().currencyNamePlural()}}));
         if (pi.getItem(17) != null && pi.getItem(17).getType() != Material.AIR) {
             ItemStack old = new HiltItemStack(pi.getItem(17));
             pi.setItem(17, wallet);
@@ -199,67 +199,29 @@ public class MintListener implements Listener {
         HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
         his.setName(ChatColor.GOLD + "REWARD!");
         his.setLore(Arrays.asList(DF.format(amount) + ""));
-        event.getEntity().getWorld().dropItemNaturally(event.getEntity().getLocation(), his);
-        plugin.getEconomy().withdrawPlayer(event.getEntity().getUniqueId().toString(), amount);
+        event.getDrops().add(his);
+        plugin.getEconomy().setBalance(event.getEntity().getUniqueId().toString(), 0.00);
     }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerDropItemEvent(PlayerDropItemEvent event) {
-        Item item = event.getItemDrop();
-        ItemStack is = item.getItemStack();
-        HiltItemStack his = new HiltItemStack(is);
-        if (!his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
-            return;
-        }
-        if (his.getLore().size() < 1) {
-            return;
-        }
-        plugin.getEconomy().setBalance(event.getPlayer().getUniqueId().toString(), 0.00);
-    }
-
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemSpawnEvent(ItemSpawnEvent event) {
-        Material i = event.getEntity().getItemStack().getType();
-        switch (i) {
-            case PAPER:
-                HiltItemStack walletStack = new HiltItemStack(event.getEntity().getItemStack());
-                if (walletStack.getName()
-                               .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
-                    if (walletStack.getLore().isEmpty()) {
-                        return;
-                    }
-                    String s = walletStack.getLore().get(0);
-                    String stripped = ChatColor.stripColor(s);
-                    String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped);
-                    double amount = NumberUtils.toDouble(replaced);
-                    HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
-                    nugget.setName(ChatColor.GOLD + "REWARD!");
-                    event.getEntity().setItemStack(nugget);
-                    event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
-                    event.getEntity().setCustomNameVisible(true);
-                }
-                break;
-            case GOLD_NUGGET:
-                HiltItemStack nuggetStack = new HiltItemStack(event.getEntity().getItemStack());
-                if (!nuggetStack.getName().equals(ChatColor.GOLD + "REWARD!") || nuggetStack.getLore().isEmpty()) {
-                    return;
-                }
-                String s = nuggetStack.getLore().get(0);
-                String stripped = ChatColor.stripColor(s);
-                double amount = NumberUtils.toDouble(stripped);
-                if (amount <= 0.00D) {
-                    event.setCancelled(true);
-                    return;
-                }
-                HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
-                nugget.setName(ChatColor.GOLD + "REWARD!");
-                event.getEntity().setItemStack(nugget);
-                event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
-                event.getEntity().setCustomNameVisible(true);
-                break;
-            default:
-                break;
+        if (event.getEntity().getItemStack().getType() == Material.GOLD_NUGGET) {
+            HiltItemStack nuggetStack = new HiltItemStack(event.getEntity().getItemStack());
+            if (!nuggetStack.getName().equals(ChatColor.GOLD + "REWARD!") || nuggetStack.getLore().isEmpty()) {
+                return;
+            }
+            String s = nuggetStack.getLore().get(0);
+            String stripped = ChatColor.stripColor(s);
+            double amount = NumberUtils.toDouble(stripped);
+            if (amount <= 0.00D) {
+                event.setCancelled(true);
+                return;
+            }
+            HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
+            nugget.setName(ChatColor.GOLD + "REWARD!");
+            event.getEntity().setItemStack(nugget);
+            event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
+            event.getEntity().setCustomNameVisible(true);
         }
     }
 
