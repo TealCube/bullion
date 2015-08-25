@@ -48,8 +48,8 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.nunnerycode.mint.MintPlugin;
@@ -203,6 +203,12 @@ public class MintListener implements Listener {
         plugin.getEconomy().setBalance(event.getEntity().getUniqueId().toString(), 0.00);
     }
 
+    @EventHandler
+    public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        plugin.getEconomy().withdrawPlayer(player, 0);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemSpawnEvent(ItemSpawnEvent event) {
         if (event.getEntity().getItemStack().getType() == Material.GOLD_NUGGET) {
@@ -222,6 +228,12 @@ public class MintListener implements Listener {
             event.getEntity().setItemStack(nugget);
             event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
             event.getEntity().setCustomNameVisible(true);
+        }
+        if (event.getEntity().getItemStack().getType() == Material.PAPER) {
+            HiltItemStack iS = new HiltItemStack(event.getEntity().getItemStack());
+            if (iS.getName().equals(plugin.getSettings().getString("config.wallet.name"))) {
+                event.getEntity().remove();
+            }
         }
     }
 
