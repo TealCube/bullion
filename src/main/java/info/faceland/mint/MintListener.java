@@ -200,13 +200,14 @@ public class MintListener implements Listener {
         his.setName(ChatColor.GOLD + "REWARD!");
         his.setLore(Arrays.asList(DF.format(amount) + ""));
         event.getDrops().add(his);
-        plugin.getEconomy().setBalance(event.getEntity().getUniqueId().toString(), 0.00);
+        Bukkit.getLogger().info("Bit chunk dropped. Value: " + amount);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        plugin.getEconomy().withdrawPlayer(player, 0);
+        plugin.getEconomy().setBalance(player, 0);
+        Bukkit.getLogger().info("Player's wallet reset to 0");
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -231,7 +232,10 @@ public class MintListener implements Listener {
         }
         if (event.getEntity().getItemStack().getType() == Material.PAPER) {
             HiltItemStack iS = new HiltItemStack(event.getEntity().getItemStack());
-            if (iS.getName().equals(plugin.getSettings().getString("config.wallet.name"))) {
+            Bukkit.getLogger().info("paperdebug1: "+iS.getName());
+            Bukkit.getLogger().info("paperdebug2:"+TextUtils.color(plugin.getSettings().getString("config.wallet" +
+                    ".name")));
+            if (iS.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
                 event.getEntity().remove();
             }
         }
