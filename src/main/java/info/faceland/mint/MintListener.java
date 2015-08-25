@@ -202,7 +202,6 @@ public class MintListener implements Listener {
             his.setLore(Arrays.asList(DF.format(amount) + ""));
             event.getDrops().add(his);
             plugin.getEconomy().setBalance(event.getEntity(), 100);
-            Bukkit.getLogger().info("Bit chunk dropped. Value: " + amount);
         }
     }
 
@@ -235,9 +234,6 @@ public class MintListener implements Listener {
         }
         if (event.getEntity().getItemStack().getType() == Material.PAPER) {
             HiltItemStack iS = new HiltItemStack(event.getEntity().getItemStack());
-            Bukkit.getLogger().info("paperdebug1: "+iS.getName());
-            Bukkit.getLogger().info("paperdebug2:"+TextUtils.color(plugin.getSettings().getString("config.wallet" +
-                    ".name")));
             if (iS.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
                 event.getEntity().remove();
             }
