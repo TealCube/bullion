@@ -206,7 +206,7 @@ public class MintListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         plugin.getEconomy().withdrawPlayer(player, 1);
