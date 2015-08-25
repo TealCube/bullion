@@ -183,7 +183,7 @@ public class MintListener implements Listener {
         ActionBarMessage.send(event.getPlayer(), message);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeathEvent(final PlayerDeathEvent event) {
         if (dead.contains(event.getEntity().getUniqueId())) {
             return;
@@ -195,14 +195,13 @@ public class MintListener implements Listener {
                 dead.remove(event.getEntity().getUniqueId());
             }
         }, 20L * 5);
-        double amount = plugin.getEconomy().getBalance(event.getEntity());
-        if (amount >= 100) {
+        double amount = plugin.getEconomy().getBalance(event.getEntity()) - 100;
+        if (amount > 0) {
             HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
             his.setName(ChatColor.GOLD + "REWARD!");
             his.setLore(Arrays.asList(DF.format(amount) + ""));
             event.getDrops().add(his);
             plugin.getEconomy().setBalance(event.getEntity(), 100);
-            amount -= 100;
             Bukkit.getLogger().info("Bit chunk dropped. Value: " + amount);
         }
     }
