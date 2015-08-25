@@ -196,18 +196,22 @@ public class MintListener implements Listener {
             }
         }, 20L * 5);
         double amount = plugin.getEconomy().getBalance(event.getEntity());
-        HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
-        his.setName(ChatColor.GOLD + "REWARD!");
-        his.setLore(Arrays.asList(DF.format(amount) + ""));
-        event.getDrops().add(his);
-        Bukkit.getLogger().info("Bit chunk dropped. Value: " + amount);
+        if (amount >= 100) {
+            HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
+            his.setName(ChatColor.GOLD + "REWARD!");
+            his.setLore(Arrays.asList(DF.format(amount) + ""));
+            event.getDrops().add(his);
+            plugin.getEconomy().setBalance(event.getEntity(), 100);
+            amount -= 100;
+            Bukkit.getLogger().info("Bit chunk dropped. Value: " + amount);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        plugin.getEconomy().setBalance(player, 0);
-        Bukkit.getLogger().info("Player's wallet reset to 0");
+        plugin.getEconomy().withdrawPlayer(player, 1);
+        plugin.getEconomy().depositPlayer(player, 1);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
