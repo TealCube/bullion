@@ -203,7 +203,7 @@ public class MintListener implements Listener {
         plugin.getEconomy().setBalance(event.getEntity().getUniqueId().toString(), 0.00);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         plugin.getEconomy().withdrawPlayer(player, 0);
