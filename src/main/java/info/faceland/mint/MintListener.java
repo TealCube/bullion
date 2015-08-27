@@ -195,13 +195,19 @@ public class MintListener implements Listener {
                 dead.remove(event.getEntity().getUniqueId());
             }
         }, 20L * 5);
-        double amount = plugin.getEconomy().getBalance(event.getEntity()) - 100;
+        int maximumKeptBits;
+        if (event.getEntity().hasPermission("mint.keep")) {
+            maximumKeptBits = 1000;
+        } else {
+            maximumKeptBits = 100;
+        }
+        double amount = plugin.getEconomy().getBalance(event.getEntity()) - maximumKeptBits;
         if (amount > 0) {
             HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
             his.setName(ChatColor.GOLD + "REWARD!");
             his.setLore(Arrays.asList(DF.format(amount) + ""));
             event.getDrops().add(his);
-            plugin.getEconomy().setBalance(event.getEntity(), 100);
+            plugin.getEconomy().setBalance(event.getEntity(), maximumKeptBits);
         }
     }
 
