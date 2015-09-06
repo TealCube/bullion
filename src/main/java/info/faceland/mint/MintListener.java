@@ -183,7 +183,7 @@ public class MintListener implements Listener {
         ActionBarMessage.send(event.getPlayer(), message);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDeathEvent(final PlayerDeathEvent event) {
         if (dead.contains(event.getEntity().getUniqueId())) {
             return;
