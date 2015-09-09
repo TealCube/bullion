@@ -34,6 +34,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
@@ -195,6 +196,8 @@ public class MintListener implements Listener {
                 dead.remove(event.getEntity().getUniqueId());
             }
         }, 20L * 5);
+        Player player = event.getEntity();
+        World world = player.getWorld();
         int maximumKeptBits;
         if (event.getEntity().hasPermission("mint.keep")) {
             maximumKeptBits = 1000;
@@ -206,7 +209,7 @@ public class MintListener implements Listener {
             HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
             his.setName(ChatColor.GOLD + "REWARD!");
             his.setLore(Arrays.asList(DF.format(amount) + ""));
-            event.getDrops().add(his);
+            world.dropItemNaturally(player.getLocation(), his);
             plugin.getEconomy().setBalance(event.getEntity(), maximumKeptBits);
         }
     }
