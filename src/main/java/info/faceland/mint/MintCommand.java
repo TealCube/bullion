@@ -315,9 +315,9 @@ public class MintCommand {
         }
         String strippedName = ChatColor.stripColor(hiltItemStack.getName());
         if (strippedName.startsWith("Socket Gem")) {
-            amount = plugin.getSettings().getDouble("prices.special.gems") * hiltItemStack.getAmount();
+            amount = plugin.getSettings().getDouble("prices.special.gems");
         } else if (plugin.getSettings().isSet("prices.names." + strippedName)) {
-            amount = plugin.getSettings().getDouble("prices.names." + strippedName, 0D) * hiltItemStack.getAmount();
+            amount = plugin.getSettings().getDouble("prices.names." + strippedName, 0D);
         }
         MessageUtils.sendMessage(p, "<green>The item in your hand sells for <white>" + amount + "Bits<green> each.");
     }
