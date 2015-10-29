@@ -307,6 +307,10 @@ public class MintCommand {
     @Command(identifier = "mint price", permissions = "mint.price", onlyPlayers = true)
     public void priceCommand(Player p) {
         HiltItemStack hiltItemStack = new HiltItemStack(p.getItemInHand());
+        if (hiltItemStack.getType() == Material.AIR) {
+            MessageUtils.sendMessage(p, "<yellow>You must be holding an item to check its price!");
+            return;
+        }
         List<String> lore = hiltItemStack.getLore();
         double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
         if (!lore.isEmpty()) {
@@ -319,7 +323,7 @@ public class MintCommand {
         } else if (plugin.getSettings().isSet("prices.names." + strippedName)) {
             amount = plugin.getSettings().getDouble("prices.names." + strippedName, 0D);
         }
-        MessageUtils.sendMessage(p, "<green>The item in your hand sells for <white>" + amount + "Bits<green> each.");
+        MessageUtils.sendMessage(p, "<green>The item in your hand sells for <white>" + amount + " Bits<green> each.");
     }
 
 }
