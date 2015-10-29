@@ -37,6 +37,7 @@ import se.ranzdo.bukkit.methodcommand.Command;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 public class MintCommand {
@@ -301,6 +302,24 @@ public class MintCommand {
         Inventory inventory = Bukkit.createInventory(null, InventoryType.CHEST,
                 TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")));
         target.openInventory(inventory);
+    }
+
+    @Command(identifier = "mint price", permissions = "mint.price", onlyPlayers = true)
+    public void priceCommand(Player p) {
+        HiltItemStack hiltItemStack = new HiltItemStack(p.getItemInHand());
+        List<String> lore = hiltItemStack.getLore();
+        double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
+        if (!lore.isEmpty()) {
+            amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
+            amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
+        }
+        String strippedName = ChatColor.stripColor(hiltItemStack.getName());
+        if (strippedName.startsWith("Socket Gem")) {
+            amount = plugin.getSettings().getDouble("prices.special.gems") * hiltItemStack.getAmount();
+        } else if (plugin.getSettings().isSet("prices.names." + strippedName)) {
+            amount = plugin.getSettings().getDouble("prices.names." + strippedName, 0D) * hiltItemStack.getAmount();
+        }
+        MessageUtils.sendMessage(p, "<green>The item in your hand sells for <white>" + amount + "Bits<green> each.");
     }
 
 }
