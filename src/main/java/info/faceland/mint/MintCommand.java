@@ -54,7 +54,7 @@ public class MintCommand {
         EconomyResponse response = plugin.getEconomy().bankBalance(target.getUniqueId().toString());
         if (response.transactionSuccess()) {
             commandSender.sendMessage(
-                    TextUtils.color(plugin.getSettings().getString("language.bank-create-failure", "")));
+                    TextUtils.color(plugin.getSettings().getString("language.bank-create-failure2", "")));
             return;
         }
         response = plugin.getEconomy().createBank(target.getUniqueId().toString(), target.getUniqueId().toString());
@@ -62,6 +62,7 @@ public class MintCommand {
             commandSender.sendMessage(TextUtils.args(
                     TextUtils.color(plugin.getSettings().getString("language.bank-create-success", "")),
                     new String[][]{{"%player%", target.getDisplayName()}}));
+            target.sendMessage(TextUtils.color(plugin.getSettings().getString("language.bank-create-receiver", "")));
             return;
         }
         commandSender.sendMessage(
@@ -87,10 +88,13 @@ public class MintCommand {
     public void bankDeposit(Player player, @Arg(name = "amount") double amount) {
         EconomyResponse response = plugin.getEconomy().bankBalance(player.getUniqueId().toString());
         if (!response.transactionSuccess()) {
-            plugin.getDebugPrinter().log(Level.INFO, "no bank exists for " + player.getUniqueId().toString());
-            player.sendMessage(
-                    TextUtils.color(plugin.getSettings().getString("language.bank-no-account", "")));
-            return;
+            response = plugin.getEconomy().createBank(player.getUniqueId().toString(), player.getUniqueId().toString());
+            if (response.transactionSuccess()) {
+                player.sendMessage(TextUtils.args(
+                        TextUtils.color(plugin.getSettings().getString("language.bank-create-success", "")),
+                        new String[][]{{"%player%", player.getDisplayName()}}));
+                return;
+            }
         }
         if (amount < 0) {
             if (plugin.getEconomy().bankDeposit(player.getUniqueId().toString(), plugin.getEconomy().getBalance(
