@@ -180,7 +180,7 @@ public class MintListener implements Listener {
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
-        if (wallet/250 < (wallet + ((int)amount/250))) {
+        if (wallet/250 < (wallet + ((int)amount))/250) {
             String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
                     event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
             ActionBarMessage.send(event.getPlayer(), message);
