@@ -175,13 +175,16 @@ public class MintListener implements Listener {
         event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.CHICKEN_EGG_POP, 0.8F, 2);
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
+        int wallet = (int)plugin.getEconomy().getBalance(event.getPlayer());
         double amount = stacksize * NumberUtils.toDouble(replaced);
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
-        String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
-                event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
-        ActionBarMessage.send(event.getPlayer(), message);
+        if (wallet/250 < (wallet + ((int)amount/250))) {
+            String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
+                    event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
+            ActionBarMessage.send(event.getPlayer(), message);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
