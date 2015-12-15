@@ -11,6 +11,10 @@ currency-singular: "Bit"
 currency-plural: "Bits"
 per-ten-blocks-mult: 0.01
 pay-distance-max: 25
+no-drop-worlds:
+- pvpworld
+- weenieland
+- mcworldforbabies
 wallet:
   name: "<dark green>My Wallet"
   lore:

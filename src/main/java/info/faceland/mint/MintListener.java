@@ -120,23 +120,15 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeathEvent(final EntityDeathEvent event) {
-        if (event instanceof PlayerDeathEvent || dead.contains(event.getEntity().getUniqueId())) {
+        if (event instanceof PlayerDeathEvent) {
             return;
         }
-        dead.add(event.getEntity().getUniqueId());
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                dead.remove(event.getEntity().getUniqueId());
-            }
-        }, 20L * 5);
         EntityType entityType = event.getEntityType();
         double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
         Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
         Location entityLoc = event.getEntity().getLocation();
         double distanceSquared = Math.pow(worldSpawn.getX() - entityLoc.getX(), 2) + Math.pow(worldSpawn.getZ() -
-                                                                                                      entityLoc.getZ(),
-                                                                                              2);
+                entityLoc.getZ(), 2);
         reward += reward * (distanceSquared / Math.pow(10D, 2D))
                 * plugin.getSettings().getDouble("config.per-ten-blocks-mult", 0.0);
         if (reward == 0D) {
@@ -180,7 +172,7 @@ public class MintListener implements Listener {
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
-        if (wallet/250 < ((wallet + (int)amount))/250) {
+        if (wallet/50 < ((wallet + (int)amount))/50) {
             String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
                     event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
             ActionBarMessage.send(event.getPlayer(), message);
@@ -189,6 +181,10 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDeathEvent(final PlayerDeathEvent event) {
+        if (plugin.getSettings().getStringList("config.no-drop-worlds").contains(event.getEntity().getWorld()
+                .getName())) {
+            return;
+        }
         if (dead.contains(event.getEntity().getUniqueId())) {
             return;
         }
