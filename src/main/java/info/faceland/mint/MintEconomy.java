@@ -85,7 +85,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         return plugin.getManager().hasPlayerAccount(uuid) ||
                 createPlayerAccount(s);
@@ -115,7 +115,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         return plugin.getManager().getPlayerBalance(uuid);
     }
@@ -164,7 +164,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getPlayerBalance(uuid);
         if (!has(s, v)) {
@@ -199,7 +199,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getPlayerBalance(uuid);
         plugin.getManager().setPlayerBalance(uuid, balance + Math.abs(v));
@@ -228,7 +228,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         plugin.getManager().setBankBalance(uuid, 0D);
         return new EconomyResponse(0D, plugin.getManager().getBankBalance(uuid),
@@ -252,7 +252,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         if (plugin.getManager().hasBankAccount(uuid)) {
             double balance = plugin.getManager().getBankBalance(uuid);
@@ -280,7 +280,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getBankBalance(uuid);
         if (response.transactionSuccess()) {
@@ -297,7 +297,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getBankBalance(uuid);
         if (response.transactionSuccess()) {
@@ -341,7 +341,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         plugin.getManager().setPlayerBalance(uuid, 0D);
         Bukkit.getPluginManager().callEvent(new MintEvent(s));
@@ -375,7 +375,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double d = plugin.getManager().getPlayerBalance(uuid);
         plugin.getManager().setPlayerBalance(uuid, v);
