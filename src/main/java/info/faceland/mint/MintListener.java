@@ -1,24 +1,18 @@
 /**
- * The MIT License
- * Copyright (c) 2015 Teal Cube Games
+ * The MIT License Copyright (c) 2015 Teal Cube Games
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.mint;
 
@@ -29,6 +23,7 @@ import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -167,12 +162,12 @@ public class MintListener implements Listener {
         event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.CHICKEN_EGG_POP, 0.8F, 2);
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
-        int wallet = (int)plugin.getEconomy().getBalance(event.getPlayer());
+        int wallet = (int) plugin.getEconomy().getBalance(event.getPlayer());
         double amount = stacksize * NumberUtils.toDouble(replaced);
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
-        if (wallet/50 < ((wallet + (int)amount))/50) {
+        if (wallet / 50 < ((wallet + (int) amount)) / 50) {
             String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
                     event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
             ActionBarMessage.send(event.getPlayer(), message);
@@ -280,7 +275,7 @@ public class MintListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!event.getInventory().getName()
-                  .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
+                .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
             return;
         }
         double value = 0D;
@@ -291,14 +286,14 @@ public class MintListener implements Listener {
             }
             HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
             if (hiltItemStack.getName()
-                             .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+                    .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
                 continue;
             }
             List<String> lore = hiltItemStack.getLore();
             double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
             if (!lore.isEmpty()) {
                 amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
-                amount += plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
+                amount += plugin.getSettings().getDouble("prices.options.lore.per-line", 1D) * lore.size();
             }
             String strippedName = ChatColor.stripColor(hiltItemStack.getName());
             if (strippedName.startsWith("Socket Gem")) {
@@ -316,8 +311,8 @@ public class MintListener implements Listener {
             if (value > 0) {
                 plugin.getEconomy().depositPlayer((Player) entity, value);
                 MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
-                                         new String[][]{{"%amount%", "" + amountSold},
-                                                        {"%currency%", plugin.getEconomy().format(value)}});
+                        new String[][]{{"%amount%", "" + amountSold},
+                                {"%currency%", plugin.getEconomy().format(value)}});
             }
         }
     }
