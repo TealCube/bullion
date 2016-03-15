@@ -164,7 +164,7 @@ public class MintListener implements Listener {
             return;
         }
 
-        event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.CHICKEN_EGG_POP, 0.8F, 2);
+        event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_CHICKEN_EGG, 0.8F, 2);
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
         int wallet = (int)plugin.getEconomy().getBalance(event.getPlayer());
