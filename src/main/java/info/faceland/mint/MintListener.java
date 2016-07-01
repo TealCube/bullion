@@ -18,11 +18,12 @@ package info.faceland.mint;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.bullion.GoldDropEvent;
-import com.tealcube.minecraft.bukkit.facecore.ui.ActionBarMessage;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
+import com.tealcubegames.minecraft.spigot.versions.actionbars.ActionBarMessager;
+import com.tealcubegames.minecraft.spigot.versions.api.actionbars.ActionBarMessage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -52,6 +53,7 @@ import org.nunnerycode.mint.MintPlugin;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MintListener implements Listener {
 
@@ -118,6 +120,11 @@ public class MintListener implements Listener {
         if (event instanceof PlayerDeathEvent) {
             return;
         }
+        if (event.getEntity().getKiller() == null) {
+            if (ThreadLocalRandom.current().nextDouble(0, 1) < 0.8) {
+                return;
+            }
+        }
         EntityType entityType = event.getEntityType();
         double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
         Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
@@ -133,7 +140,8 @@ public class MintListener implements Listener {
         Bukkit.getPluginManager().callEvent(gde);
         HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
         his.setName(ChatColor.GOLD + "REWARD!");
-        his.setLore(Arrays.asList(DF.format(gde.getAmount())));
+        int antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
+        his.setLore(Arrays.asList(DF.format(gde.getAmount()), "S:" + antiStackSerial));
         event.getDrops().add(his);
     }
 
@@ -162,16 +170,14 @@ public class MintListener implements Listener {
         event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_CHICKEN_EGG, 0.8F, 2);
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
-        int wallet = (int) plugin.getEconomy().getBalance(event.getPlayer());
         double amount = stacksize * NumberUtils.toDouble(replaced);
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
         event.getItem().remove();
         event.setCancelled(true);
-        if (wallet / 50 < ((wallet + (int) amount)) / 50) {
-            String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
-                    event.getPlayer())).replace(" ", ChatColor.GREEN + " ");
-            ActionBarMessage.send(event.getPlayer(), message);
-        }
+        String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
+                event.getPlayer()));
+        ActionBarMessage econMsg = ActionBarMessager.createActionBarMessage(message);
+        econMsg.send(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -231,6 +237,7 @@ public class MintListener implements Listener {
             }
             HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
             nugget.setName(ChatColor.GOLD + "REWARD!");
+            nugget.setLore(Arrays.asList(DF.format(amount) + ""));
             event.getEntity().setItemStack(nugget);
             event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
             event.getEntity().setCustomNameVisible(true);
