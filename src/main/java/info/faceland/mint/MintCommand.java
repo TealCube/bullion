@@ -25,6 +25,8 @@ package info.faceland.mint;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.lumberjack.Lumberjack;
+import com.tealcube.minecraft.bukkit.lumberjack.shade.slf4j.Logger;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -42,11 +44,12 @@ import java.util.logging.Level;
 
 public class MintCommand {
 
-    private static final DecimalFormat DF = new DecimalFormat("#.##");
     private MintPlugin plugin;
+    private Logger logger;
 
     public MintCommand(MintPlugin plugin) {
         this.plugin = plugin;
+        this.logger = Lumberjack.loggerToFile(MintCommand.class, this.plugin.getLoggerFile().getAbsolutePath());
     }
 
     @Command(identifier = "bank create", permissions = "mint.bank.create")
@@ -112,18 +115,17 @@ public class MintCommand {
                                                             .bankBalance(player.getUniqueId().toString()).balance)}}));
                     return;
                 } else {
-                    plugin.getDebugPrinter()
-                            .log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
+                    logger.info("could not withdraw money from " + player.getUniqueId().toString());
                 }
             } else {
-                plugin.getDebugPrinter().log(Level.INFO, "could not deposit money in " + player.getUniqueId().toString());
+                logger.info("could not deposit money in " + player.getUniqueId().toString());
             }
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
             return;
         }
         if (!plugin.getEconomy().has(player.getUniqueId().toString(), amount)) {
-            plugin.getDebugPrinter().log(Level.INFO, player.getUniqueId().toString() + " does not have enough money");
+            logger.info(player.getUniqueId().toString() + " does not have enough money");
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
             return;
@@ -141,11 +143,10 @@ public class MintCommand {
                                                         .bankBalance(player.getUniqueId().toString()).balance)}}));
                 return;
             } else {
-                plugin.getDebugPrinter()
-                        .log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
+                logger.info("could not withdraw money from " + player.getUniqueId().toString());
             }
         } else {
-            plugin.getDebugPrinter().log(Level.INFO, "could not deposit money in " + player.getUniqueId().toString());
+            logger.info("could not deposit money in " + player.getUniqueId().toString());
         }
         player.sendMessage(
                 TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
@@ -175,11 +176,10 @@ public class MintCommand {
                                                     .bankBalance(player.getUniqueId().toString()).balance)}}));
                     return;
                 } else {
-                    plugin.getDebugPrinter()
-                            .log(Level.INFO, "could not withdraw money from " + player.getUniqueId().toString());
+                    logger.info("could not withdraw money from " + player.getUniqueId().toString());
                 }
             } else {
-                plugin.getDebugPrinter().log(Level.INFO, "could not deposit money in " + player.getUniqueId().toString());
+                logger.info("could not deposit money in " + player.getUniqueId().toString());
             }
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-failure", "")));
