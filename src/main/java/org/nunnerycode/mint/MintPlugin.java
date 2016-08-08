@@ -28,6 +28,8 @@ import com.tealcube.minecraft.bukkit.config.VersionedSmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.FacecorePlugin;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
+import com.tealcube.minecraft.bukkit.lumberjack.Lumberjack;
+import com.tealcube.minecraft.bukkit.lumberjack.shade.slf4j.Logger;
 import info.faceland.mint.MintCommand;
 import info.faceland.mint.MintEconomy;
 import info.faceland.mint.MintListener;
@@ -45,22 +47,30 @@ import se.ranzdo.bukkit.methodcommand.CommandHandler;
 import java.io.File;
 
 public class MintPlugin extends FacePlugin {
+
+    private static MintPlugin _INSTANCE;
+
     private MasterConfiguration settings;
     private MintEconomy economy;
     private MintManager manager;
-    private PluginLogger debugPrinter;
+    private Logger logger;
     private DataStorage dataStorage;
+    private File loggerFile;
+    private FacecorePlugin facecorePlugin;
 
-    public MintEconomy getEconomy() {
-        return economy;
+    public static MintPlugin getInstance() {
+        return _INSTANCE;
     }
-
-    public FacecorePlugin facecorePlugin;
 
     @Override
     public void enable() {
+        _INSTANCE = this;
+        loggerFile = new File(getDataFolder(), "debug.log");
+        logger = Lumberjack.loggerToFile(MintPlugin.class, loggerFile.getAbsolutePath());
+
+        logger.debug("Starting up...");
+
         facecorePlugin = (FacecorePlugin) getServer().getPluginManager().getPlugin("Facecore");
-        debugPrinter = new PluginLogger(this);
 
         VersionedSmartYamlConfiguration configYAML =
                 new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
@@ -104,10 +114,12 @@ public class MintPlugin extends FacePlugin {
         }
 
         if (settings.getBoolean("config.database.enabled")) {
+            logger.debug("Using MySQL for data");
             dataStorage = new MySqlDataStorage(settings.getString("config.database.host"),
                     settings.getString("config.database.port"), settings.getString("config.database.database"),
                     settings.getString("config.database.username"), settings.getString("config.database.password"));
         } else {
+            logger.debug("Using YAML for data");
             dataStorage = new YamlDataStorage(this);
         }
         dataStorage.initialize();
@@ -137,6 +149,7 @@ public class MintPlugin extends FacePlugin {
 
     @Override
     public void disable() {
+        logger.debug("Shutting down...");
         dataStorage.saveBankAccounts(manager.getBankAccounts());
         dataStorage.savePlayerAccounts(manager.getPlayerAccounts());
         dataStorage.shutdown();
@@ -146,15 +159,19 @@ public class MintPlugin extends FacePlugin {
         return settings;
     }
 
-    public PluginLogger getDebugPrinter() {
-        return debugPrinter;
+    public MintEconomy getEconomy() {
+        return economy;
     }
 
-    public FacecorePlugin getFacecore() {
+    public FacecorePlugin getFacecorePlugin() {
         return facecorePlugin;
     }
 
     public MintManager getManager() {
         return manager;
+    }
+
+    public File getLoggerFile() {
+        return loggerFile;
     }
 }
