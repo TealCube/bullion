@@ -49,6 +49,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffectType;
 import org.nunnerycode.mint.MintPlugin;
 
 import java.text.DecimalFormat;
@@ -121,9 +122,7 @@ public class MintListener implements Listener {
             return;
         }
         if (event.getEntity().getKiller() == null) {
-            if (ThreadLocalRandom.current().nextDouble(0, 1) < 0.8) {
-                return;
-            }
+            return;
         }
         EntityType entityType = event.getEntityType();
         double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
@@ -140,9 +139,21 @@ public class MintListener implements Listener {
         Bukkit.getPluginManager().callEvent(gde);
         HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
         his.setName(ChatColor.GOLD + "REWARD!");
-        int antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
-        his.setLore(Arrays.asList(DF.format(gde.getAmount()), "S:" + antiStackSerial));
-        event.getDrops().add(his);
+
+        String rewardString = DF.format(gde.getAmount());
+        int antiStackSerial;
+        int numberOfDrops = 1;
+        if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
+            if (ThreadLocalRandom.current().nextDouble(0, 1) <= 0.01) {
+                numberOfDrops = ThreadLocalRandom.current().nextInt(100, 300);
+            }
+        }
+        while (numberOfDrops > 0) {
+            antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
+            his.setLore(Arrays.asList(rewardString, "S:" + antiStackSerial));
+            event.getDrops().add(his);
+            numberOfDrops--;
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
