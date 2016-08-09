@@ -38,11 +38,11 @@ public class MintEconomy implements Economy {
 
     private static final DecimalFormat DF = new DecimalFormat("#.##");
     private MintPlugin plugin;
-    private Logger logger;
+    //private Logger logger;
 
     public MintEconomy(MintPlugin plugin) {
         this.plugin = plugin;
-        this.logger = Lumberjack.loggerToFile(MintEconomy.class, this.plugin.getLoggerFile().getAbsolutePath());
+        //this.logger = Lumberjack.loggerToFile(MintEconomy.class, this.plugin.getLoggerFile().getAbsolutePath());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public boolean hasAccount(String s) {
-        logger.debug("hasAccount({})", s);
+        // logger.debug("hasAccount({})", s);
         UUID uuid;
         try {
             uuid = UUID.fromString(s);
@@ -113,7 +113,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public double getBalance(String s) {
-        logger.debug("getBalance({})", s);
+        // logger.debug("getBalance({})", s);
         if (!hasAccount(s)) {
             return 0;
         }
@@ -143,7 +143,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public boolean has(String s, double v) {
-        logger.debug("has({}, {})", s, v);
+        // logger.debug("has({}, {})", s, v);
         return hasAccount(s) && getBalance(s) >= v;
     }
 
@@ -164,7 +164,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(String s, double v) {
-        logger.debug("withdrawPlayer({}, {})", s, v);
+        // logger.debug("withdrawPlayer({}, {})", s, v);
         if (!hasAccount(s)) {
             createPlayerAccount(s);
         }
@@ -200,7 +200,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(String s, double v) {
-        logger.debug("depositPlayer({}, {})", s, v);
+        // logger.debug("depositPlayer({}, {})", s, v);
         if (!hasAccount(s)) {
             createPlayerAccount(s);
         }
@@ -346,7 +346,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public boolean createPlayerAccount(String s) {
-        logger.debug("createPlayerAccount({})", s);
+        // logger.debug("createPlayerAccount({})", s);
         UUID uuid;
         try {
             uuid = UUID.fromString(s);
@@ -378,7 +378,7 @@ public class MintEconomy implements Economy {
     }
 
     public EconomyResponse setBalance(String s, double v) {
-        logger.debug("setBalance({}, {})", s, v);
+        // logger.debug("setBalance({}, {})", s, v);
         if (!hasAccount(s)) {
             createPlayerAccount(s);
         }
