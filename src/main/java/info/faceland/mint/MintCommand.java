@@ -208,8 +208,12 @@ public class MintCommand {
 
     @Command(identifier = "pay", permissions = "mint.pay")
     public void payCommand(Player player, @Arg(name = "target") Player target, @Arg(name = "amount") double amount) {
-        if (player.getLocation().distanceSquared(target.getLocation()) > plugin.getSettings().getDouble(
-                "config.pay-distance-max", 25)) {
+        if (amount < 1D) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.pay-negative-money"));
+            return;
+        }
+        if (!player.getLocation().getWorld().equals(target.getLocation().getWorld()) ||
+                player.getLocation().distanceSquared(target.getLocation()) > plugin.getSettings().getDouble("config.pay-distance-max", 25)) {
             player.sendMessage(TextUtils.color(plugin.getSettings().getString("language.pay-range", "")));
             return;
         }
@@ -239,6 +243,10 @@ public class MintCommand {
 
     @Command(identifier = "epay", permissions = "mint.epay")
     public void ePayCommand(Player player, @Arg(name = "target") Player target, @Arg(name = "amount") double amount) {
+        if (amount < 1D) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.pay-negative-money"));
+            return;
+        }
         if (!plugin.getEconomy().has(player.getUniqueId().toString(), amount)) {
             player.sendMessage(TextUtils.color(plugin.getSettings().getString("language.pay-failure", "")));
             return;
@@ -248,8 +256,7 @@ public class MintCommand {
             player.sendMessage(TextUtils.args(
                     TextUtils.color(plugin.getSettings().getString("language.pay-success", "")),
                     new String[][]{{"%player%", target.getDisplayName()},
-                            {"%currency%", plugin.getEconomy().format(Math.abs(amount))
-                            }}));
+                            {"%currency%", plugin.getEconomy().format(Math.abs(amount))}}));
             return;
         }
         player.sendMessage(TextUtils.color(plugin.getSettings().getString("language.pay-failure", "")));
