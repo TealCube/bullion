@@ -22,8 +22,6 @@
  */
 package info.faceland.mint;
 
-import com.tealcube.minecraft.bukkit.lumberjack.Lumberjack;
-import com.tealcube.minecraft.bukkit.lumberjack.shade.slf4j.Logger;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
