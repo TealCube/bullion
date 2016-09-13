@@ -9,8 +9,11 @@ database:
 starting-balance: 0
 currency-singular: "Bit"
 currency-plural: "Bits"
-per-ten-blocks-mult: 0.01
 pay-distance-max: 25
+money-drop-worlds:
+  pveworld:
+    mult-distance: 10
+    mult-amount: 0.01
 no-drop-worlds:
 - pvpworld
 - weenieland

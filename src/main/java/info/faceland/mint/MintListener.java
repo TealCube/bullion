@@ -49,6 +49,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.nunnerycode.mint.MintPlugin;
 
@@ -124,14 +125,25 @@ public class MintListener implements Listener {
         if (event.getEntity().getKiller() == null) {
             return;
         }
+        if (!plugin.getSettings().isSet("config.money-drop-worlds." + event.getEntity().getWorld())) {
+            Bukkit.getLogger().info("This world is not set!");
+            return;
+        }
         EntityType entityType = event.getEntityType();
         double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
         Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
         Location entityLoc = event.getEntity().getLocation();
-        double distanceSquared = Math.pow(worldSpawn.getX() - entityLoc.getX(), 2) + Math.pow(worldSpawn.getZ() -
-                entityLoc.getZ(), 2);
-        reward += reward * (distanceSquared / Math.pow(10D, 2D))
-                * plugin.getSettings().getDouble("config.per-ten-blocks-mult", 0.0);
+        double distance = worldSpawn.distance(entityLoc);
+        double blockInterval = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
+                .getWorld() + ".mult-distance", 0.0);
+        Bukkit.getLogger().info("Interval for this world is: " + blockInterval);
+        double intervalMult = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
+                .getWorld() + ".mult-amount", 0.0);
+        Bukkit.getLogger().info("Every " + blockInterval + " blocks mult will increase by " + intervalMult);
+        double distMult = (distance / blockInterval) * intervalMult;
+        Bukkit.getLogger().info("Final dist mult: " + distMult);
+        reward *= 1 + distMult;
+        Bukkit.getLogger().info("Reward before GoldFind: " + blockInterval);
         if (reward == 0D) {
             return;
         }
@@ -141,16 +153,16 @@ public class MintListener implements Listener {
         his.setName(ChatColor.GOLD + "REWARD!");
 
         String rewardString = DF.format(gde.getAmount());
-        int antiStackSerial;
         int numberOfDrops = 1;
+        double bombChance = 0.0001;
         if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
-            if (ThreadLocalRandom.current().nextDouble(0, 1) <= 0.01) {
-                numberOfDrops = ThreadLocalRandom.current().nextInt(100, 300);
-            }
+            bombChance = 0.001;
+        }
+        if (ThreadLocalRandom.current().nextDouble(0, 1) <= bombChance) {
+            numberOfDrops = ThreadLocalRandom.current().nextInt(100, 150);
         }
         while (numberOfDrops > 0) {
-            antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
-            his.setLore(Arrays.asList(rewardString, "S:" + antiStackSerial));
+            his.setLore(Arrays.asList(rewardString));
             event.getDrops().add(his);
             numberOfDrops--;
         }
@@ -219,7 +231,7 @@ public class MintListener implements Listener {
         if (amount > 0) {
             HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
             his.setName(ChatColor.GOLD + "REWARD!");
-            his.setLore(Arrays.asList(DF.format(amount) + ""));
+            his.setLore(Arrays.asList(DF.format(amount)));
             world.dropItemNaturally(player.getLocation(), his);
             plugin.getEconomy().setBalance(event.getEntity(), maximumKeptBits);
         }
@@ -246,9 +258,10 @@ public class MintListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+            int antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
             HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
             nugget.setName(ChatColor.GOLD + "REWARD!");
-            nugget.setLore(Arrays.asList(DF.format(amount) + ""));
+            nugget.setLore(Arrays.asList(DF.format(amount), "S:" + antiStackSerial));
             event.getEntity().setItemStack(nugget);
             event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
             event.getEntity().setCustomNameVisible(true);
