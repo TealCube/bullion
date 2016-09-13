@@ -14,7 +14,7 @@ money-drop-worlds:
   pveworld:
     mult-distance: 10
     mult-amount: 0.01
-no-drop-worlds:
+no-loss-worlds:
 - pvpworld
 - weenieland
 - mcworldforbabies
