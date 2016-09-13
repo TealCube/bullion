@@ -201,7 +201,7 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDeathEvent(final PlayerDeathEvent event) {
-        if (plugin.getSettings().getStringList("config.no-drop-worlds").contains(event.getEntity().getWorld()
+        if (plugin.getSettings().getStringList("config.no-loss-worlds").contains(event.getEntity().getWorld()
                 .getName())) {
             return;
         }
