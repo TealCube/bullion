@@ -125,8 +125,8 @@ public class MintListener implements Listener {
         if (event.getEntity().getKiller() == null) {
             return;
         }
-        if (!plugin.getSettings().isSet("config.money-drop-worlds." + event.getEntity().getWorld())) {
-            Bukkit.getLogger().info("This world is not set!");
+        if (!plugin.getSettings().getBoolean("config.money-drop-worlds." + event.getEntity().getWorld().getName() +
+                ".enabled", false)) {
             return;
         }
         EntityType entityType = event.getEntityType();
@@ -135,15 +135,11 @@ public class MintListener implements Listener {
         Location entityLoc = event.getEntity().getLocation();
         double distance = worldSpawn.distance(entityLoc);
         double blockInterval = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
-                .getWorld() + ".mult-distance", 0.0);
-        Bukkit.getLogger().info("Interval for this world is: " + blockInterval);
+                .getWorld().getName() + ".mult-distance", 0.0);
         double intervalMult = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
-                .getWorld() + ".mult-amount", 0.0);
-        Bukkit.getLogger().info("Every " + blockInterval + " blocks mult will increase by " + intervalMult);
+                .getWorld().getName() + ".mult-amount", 0.0);
         double distMult = (distance / blockInterval) * intervalMult;
-        Bukkit.getLogger().info("Final dist mult: " + distMult);
-        reward *= 1 + distMult;
-        Bukkit.getLogger().info("Reward before GoldFind: " + blockInterval);
+        reward *= 1 * distMult;
         if (reward == 0D) {
             return;
         }
