@@ -139,7 +139,7 @@ public class MintListener implements Listener {
         double intervalMult = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
                 .getWorld().getName() + ".mult-amount", 0.0);
         double distMult = (distance / blockInterval) * intervalMult;
-        reward *= 1 * distMult;
+        reward *= 1 + distMult;
         if (reward == 0D) {
             return;
         }
