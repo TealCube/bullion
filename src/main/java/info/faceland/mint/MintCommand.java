@@ -24,9 +24,7 @@ package info.faceland.mint;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-import com.tealcube.minecraft.bukkit.lumberjack.Lumberjack;
-import com.tealcube.minecraft.bukkit.lumberjack.shade.slf4j.Logger;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -37,19 +35,15 @@ import org.nunnerycode.mint.MintPlugin;
 import se.ranzdo.bukkit.methodcommand.Arg;
 import se.ranzdo.bukkit.methodcommand.Command;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 public class MintCommand {
 
     private MintPlugin plugin;
-    private Logger logger;
 
     public MintCommand(MintPlugin plugin) {
         this.plugin = plugin;
-        this.logger = Lumberjack.loggerToFile(MintCommand.class, this.plugin.getLoggerFile().getAbsolutePath());
     }
 
     @Command(identifier = "bank create", permissions = "mint.bank.create")
@@ -114,18 +108,13 @@ public class MintCommand {
                              plugin.getEconomy().format(plugin.getEconomy()
                                                             .bankBalance(player.getUniqueId().toString()).balance)}}));
                     return;
-                } else {
-                    logger.info("could not withdraw money from " + player.getUniqueId().toString());
                 }
-            } else {
-                logger.info("could not deposit money in " + player.getUniqueId().toString());
             }
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
             return;
         }
         if (!plugin.getEconomy().has(player.getUniqueId().toString(), amount)) {
-            logger.info(player.getUniqueId().toString() + " does not have enough money");
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
             return;
@@ -142,11 +131,7 @@ public class MintCommand {
                          plugin.getEconomy().format(plugin.getEconomy()
                                                         .bankBalance(player.getUniqueId().toString()).balance)}}));
                 return;
-            } else {
-                logger.info("could not withdraw money from " + player.getUniqueId().toString());
             }
-        } else {
-            logger.info("could not deposit money in " + player.getUniqueId().toString());
         }
         player.sendMessage(
                 TextUtils.color(plugin.getSettings().getString("language.bank-deposit-failure", "")));
@@ -175,11 +160,7 @@ public class MintCommand {
                                             plugin.getEconomy().format(plugin.getEconomy()
                                                     .bankBalance(player.getUniqueId().toString()).balance)}}));
                     return;
-                } else {
-                    logger.info("could not withdraw money from " + player.getUniqueId().toString());
                 }
-            } else {
-                logger.info("could not deposit money in " + player.getUniqueId().toString());
             }
             player.sendMessage(
                     TextUtils.color(plugin.getSettings().getString("language.bank-withdraw-failure", "")));

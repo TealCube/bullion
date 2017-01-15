@@ -23,8 +23,8 @@
 package info.faceland.mint;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

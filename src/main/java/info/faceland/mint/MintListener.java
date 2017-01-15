@@ -19,12 +19,10 @@ package info.faceland.mint;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.bullion.GoldDropEvent;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
-import com.tealcubegames.minecraft.spigot.versions.actionbars.ActionBarMessager;
-import com.tealcubegames.minecraft.spigot.versions.api.actionbars.ActionBarMessage;
 
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -49,7 +47,6 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.nunnerycode.mint.MintPlugin;
 

@@ -26,9 +26,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.tealcube.minecraft.bukkit</groupId>
-        <artifactId>bukkit-plugin-parent</artifactId>
-        <version>MC-1.10-SNAPSHOT</version>
+        <groupId>io.pixeloutlaw</groupId>
+        <artifactId>spigot-plugin-parent</artifactId>
+        <version>1.11.2.2</version>
     </parent>
 
     <artifactId>bullion</artifactId>
@@ -56,9 +56,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.tealcube.minecraft.bukkit</groupId>
+            <groupId>io.pixeloutlaw</groupId>
             <artifactId>facecore</artifactId>
-            <version>2.0.6-SNAPSHOT</version>
+            <version>3.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>

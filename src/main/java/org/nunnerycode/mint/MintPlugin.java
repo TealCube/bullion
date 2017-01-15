@@ -22,11 +22,7 @@
  */
 package org.nunnerycode.mint;
 
-import com.tealcube.minecraft.bukkit.config.MasterConfiguration;
-import com.tealcube.minecraft.bukkit.config.VersionedConfiguration;
-import com.tealcube.minecraft.bukkit.config.VersionedSmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.FacecorePlugin;
-import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import com.tealcube.minecraft.bukkit.lumberjack.Lumberjack;
 import com.tealcube.minecraft.bukkit.lumberjack.shade.slf4j.Logger;
@@ -34,6 +30,9 @@ import info.faceland.mint.MintCommand;
 import info.faceland.mint.MintEconomy;
 import info.faceland.mint.MintListener;
 import info.faceland.mint.MintRunnable;
+import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
+import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
+import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
