@@ -12,6 +12,8 @@ currency-plural: "Bits"
 pay-distance-max: 25
 money-drop-worlds:
   pveworld:
+    enabled: true
+    drop-chance: 0.25
     mult-distance: 10
     mult-amount: 0.01
 no-loss-worlds:
