@@ -24,8 +24,6 @@ package org.nunnerycode.mint;
 
 import com.tealcube.minecraft.bukkit.facecore.FacecorePlugin;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
-import com.tealcube.minecraft.bukkit.lumberjack.Lumberjack;
-import com.tealcube.minecraft.bukkit.lumberjack.shade.slf4j.Logger;
 import info.faceland.mint.MintCommand;
 import info.faceland.mint.MintEconomy;
 import info.faceland.mint.MintListener;
@@ -52,7 +50,6 @@ public class MintPlugin extends FacePlugin {
     private MasterConfiguration settings;
     private MintEconomy economy;
     private MintManager manager;
-    private Logger logger;
     private DataStorage dataStorage;
     private File loggerFile;
     private FacecorePlugin facecorePlugin;
@@ -65,9 +62,6 @@ public class MintPlugin extends FacePlugin {
     public void enable() {
         _INSTANCE = this;
         loggerFile = new File(getDataFolder(), "debug.log");
-        logger = Lumberjack.loggerToFile(MintPlugin.class, loggerFile.getAbsolutePath());
-
-        logger.debug("Starting up...");
 
         facecorePlugin = (FacecorePlugin) getServer().getPluginManager().getPlugin("Facecore");
 
@@ -113,12 +107,10 @@ public class MintPlugin extends FacePlugin {
         }
 
         if (settings.getBoolean("config.database.enabled")) {
-            logger.debug("Using MySQL for data");
             dataStorage = new MySqlDataStorage(settings.getString("config.database.host"),
                     settings.getString("config.database.port"), settings.getString("config.database.database"),
                     settings.getString("config.database.username"), settings.getString("config.database.password"));
         } else {
-            logger.debug("Using YAML for data");
             dataStorage = new YamlDataStorage(this);
         }
         dataStorage.initialize();
@@ -148,7 +140,6 @@ public class MintPlugin extends FacePlugin {
 
     @Override
     public void disable() {
-        logger.debug("Shutting down...");
         dataStorage.saveBankAccounts(manager.getBankAccounts());
         dataStorage.savePlayerAccounts(manager.getPlayerAccounts());
         dataStorage.shutdown();
