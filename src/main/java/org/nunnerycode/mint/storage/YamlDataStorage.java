@@ -22,9 +22,9 @@
  */
 package org.nunnerycode.mint.storage;
 
-import com.tealcube.minecraft.bukkit.config.SmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.Optional;
+import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.nunnerycode.mint.MintPlugin;
 import org.nunnerycode.mint.accounts.BankAccount;
