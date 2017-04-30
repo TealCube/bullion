@@ -22,6 +22,7 @@ import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 
+import gyurix.spigotlib.ChatAPI;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -116,18 +117,22 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeathEvent(final EntityDeathEvent event) {
-        if (event instanceof PlayerDeathEvent) {
+        if (event instanceof PlayerDeathEvent || event.getEntity().getKiller() == null) {
             return;
         }
-        if (event.getEntity().getKiller() == null) {
+        String dropWorld = event.getEntity().getWorld().getName();
+        if (!plugin.getSettings().getBoolean("config.money-drop-worlds." + dropWorld + ".enabled", false)) {
             return;
         }
-        if (!plugin.getSettings().getBoolean("config.money-drop-worlds." + event.getEntity().getWorld().getName() +
-                ".enabled", false)) {
+        if (ThreadLocalRandom.current().nextDouble() > plugin.getSettings().getDouble("config.money-drop-worlds." +
+                dropWorld + ".drop-chance", 1.0)) {
             return;
         }
         EntityType entityType = event.getEntityType();
         double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
+        if (reward == 0D) {
+            return;
+        }
         Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
         Location entityLoc = event.getEntity().getLocation();
         double distance = worldSpawn.distance(entityLoc);
@@ -135,27 +140,29 @@ public class MintListener implements Listener {
                 .getWorld().getName() + ".mult-distance", 0.0);
         double intervalMult = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
                 .getWorld().getName() + ".mult-amount", 0.0);
-        double distMult = (distance / blockInterval) * intervalMult;
-        reward *= 1 + distMult;
-        if (reward == 0D) {
-            return;
-        }
+        double distMult = Math.pow(1 + intervalMult, (distance / blockInterval));
+
+        reward *= distMult;
+        reward *= 0.75 + ThreadLocalRandom.current().nextDouble() / 2;
+
         GoldDropEvent gde = new GoldDropEvent(event.getEntity().getKiller(), event.getEntity(), reward);
         Bukkit.getPluginManager().callEvent(gde);
+
+        reward = Math.ceil(gde.getAmount() * (0.5D + ThreadLocalRandom.current().nextDouble() / 2));
+
         HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
         his.setName(ChatColor.GOLD + "REWARD!");
+        his.setLore(Arrays.asList(DF.format(reward)));
 
-        String rewardString = DF.format(gde.getAmount());
         int numberOfDrops = 1;
-        double bombChance = 0.0001;
+        double bombChance = 0.001;
         if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
-            bombChance = 0.001;
+            bombChance = 0.01;
         }
-        if (ThreadLocalRandom.current().nextDouble(0, 1) <= bombChance) {
-            numberOfDrops = ThreadLocalRandom.current().nextInt(100, 150);
+        if (ThreadLocalRandom.current().nextDouble() <= bombChance) {
+            numberOfDrops = ThreadLocalRandom.current().nextInt(50, 100);
         }
         while (numberOfDrops > 0) {
-            his.setLore(Arrays.asList(rewardString));
             event.getDrops().add(his);
             numberOfDrops--;
         }
@@ -183,17 +190,19 @@ public class MintListener implements Listener {
             return;
         }
 
-        event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_CHICKEN_EGG, 0.8F, 2);
+        event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1.0F, 1.0F);
+
         String stripped = ChatColor.stripColor(name);
         String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
         double amount = stacksize * NumberUtils.toDouble(replaced);
         plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
+
         event.getItem().remove();
         event.setCancelled(true);
-        String message = "<dark green>Wallet: <white>" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
+
+        String message = "&2&lCarried Bits: &f&l" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
                 event.getPlayer()));
-        ActionBarMessage econMsg = ActionBarMessager.createActionBarMessage(message);
-        econMsg.send(event.getPlayer());
+        ChatAPI.sendJsonMsg(ChatAPI.ChatMessageType.ACTION_BAR, TextUtils.color(message), event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH)
