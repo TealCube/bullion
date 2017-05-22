@@ -44,10 +44,10 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
 import org.nunnerycode.mint.MintPlugin;
 
@@ -57,280 +57,286 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MintListener implements Listener {
 
-    public static final DecimalFormat DF = new DecimalFormat("#.##");
-    private final MintPlugin plugin;
-    private final Set<UUID> dead;
+  public static final DecimalFormat DF = new DecimalFormat("#.##");
+  private final MintPlugin plugin;
+  private final Set<UUID> dead;
 
-    public MintListener(MintPlugin mintPlugin) {
-        this.plugin = mintPlugin;
-        this.dead = new HashSet<>();
+  public MintListener(MintPlugin mintPlugin) {
+    this.plugin = mintPlugin;
+    this.dead = new HashSet<>();
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onMintEvent(MintEvent mintEvent) {
+    if (mintEvent.getUuid().equals("")) {
+      return;
+    }
+    UUID uuid;
+    try {
+      uuid = UUID.fromString(mintEvent.getUuid());
+    } catch (IllegalArgumentException e) {
+      uuid = Bukkit.getPlayer(mintEvent.getUuid()).getUniqueId();
+    }
+    Player player = Bukkit.getPlayer(uuid);
+    if (player == null) {
+      return;
+    }
+    plugin.getManager().updateWallet(player);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onEntityDeathEvent(final EntityDeathEvent event) {
+    if (event instanceof PlayerDeathEvent || event.getEntity().getKiller() == null) {
+      return;
+    }
+    String dropWorld = event.getEntity().getWorld().getName();
+    if (!plugin.getSettings().getBoolean("config.money-drop-worlds." + dropWorld + ".enabled", false)) {
+      return;
+    }
+    if (ThreadLocalRandom.current().nextDouble() > plugin.getSettings().getDouble("config.money-drop-worlds." +
+        dropWorld + ".drop-chance", 1.0)) {
+      return;
+    }
+    EntityType entityType = event.getEntityType();
+    double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
+
+    if (reward == 0D) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onMintEvent(MintEvent mintEvent) {
-        if (mintEvent.getUuid().equals("")) {
-            return;
-        }
-        UUID uuid;
-        try {
-            uuid = UUID.fromString(mintEvent.getUuid());
-        } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(mintEvent.getUuid()).getUniqueId();
-        }
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null) {
-            return;
-        }
-        plugin.getManager().updateWallet(player);
+    int numberOfDrops = 1;
+    double bombChance = 0.001;
+    if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
+      bombChance = 0.01;
+    }
+    if (ThreadLocalRandom.current().nextDouble() <= bombChance) {
+      numberOfDrops = ThreadLocalRandom.current().nextInt(10, 30);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDeathEvent(final EntityDeathEvent event) {
-        if (event instanceof PlayerDeathEvent || event.getEntity().getKiller() == null) {
-            return;
-        }
-        String dropWorld = event.getEntity().getWorld().getName();
-        if (!plugin.getSettings().getBoolean("config.money-drop-worlds." + dropWorld + ".enabled", false)) {
-            return;
-        }
-        if (ThreadLocalRandom.current().nextDouble() > plugin.getSettings().getDouble("config.money-drop-worlds." +
-                dropWorld + ".drop-chance", 1.0)) {
-            return;
-        }
-        EntityType entityType = event.getEntityType();
-        double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
+    Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
+    Location entityLoc = event.getEntity().getLocation();
+    double distance = worldSpawn.distance(entityLoc);
+    double blockInterval = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
+        .getWorld().getName() + ".mult-distance", 0.0);
+    double intervalMult = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
+        .getWorld().getName() + ".mult-amount", 0.0);
+    double distMult = Math.pow(1 + intervalMult, (distance / blockInterval));
 
-        if (reward == 0D) {
-            return;
-        }
+    reward *= distMult;
+    reward *= 0.75 + ThreadLocalRandom.current().nextDouble() / 2;
 
-        int numberOfDrops = 1;
-        double bombChance = 0.001;
-        if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
-            bombChance = 0.01;
-        }
-        if (ThreadLocalRandom.current().nextDouble() <= bombChance) {
-            numberOfDrops = ThreadLocalRandom.current().nextInt(10, 30);
-        }
+    GoldDropEvent gde = new GoldDropEvent(event.getEntity().getKiller(), event.getEntity(), reward);
+    Bukkit.getPluginManager().callEvent(gde);
 
-        Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
-        Location entityLoc = event.getEntity().getLocation();
-        double distance = worldSpawn.distance(entityLoc);
-        double blockInterval = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
-                .getWorld().getName() + ".mult-distance", 0.0);
-        double intervalMult = plugin.getSettings().getDouble("config.money-drop-worlds." + event.getEntity()
-                .getWorld().getName() + ".mult-amount", 0.0);
-        double distMult = Math.pow(1 + intervalMult, (distance / blockInterval));
+    reward = Math.ceil(gde.getAmount() * (0.5D + ThreadLocalRandom.current().nextDouble() / 2));
 
-        reward *= distMult;
-        reward *= 0.75 + ThreadLocalRandom.current().nextDouble() / 2;
-
-        GoldDropEvent gde = new GoldDropEvent(event.getEntity().getKiller(), event.getEntity(), reward);
-        Bukkit.getPluginManager().callEvent(gde);
-
-        reward = Math.ceil(gde.getAmount() * (0.5D + ThreadLocalRandom.current().nextDouble() / 2));
-
-        if (numberOfDrops > 1) {
-            reward *= 5;
-        }
-
-        HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
-        his.setName(ChatColor.GOLD + "REWARD!");
-        his.setLore(Arrays.asList(DF.format(reward)));
-
-        while (numberOfDrops > 0) {
-            event.getDrops().add(his);
-            numberOfDrops--;
-        }
+    if (numberOfDrops > 1) {
+      reward *= 5;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemPickupEvent(PlayerPickupItemEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
-        if (event.getItem() == null || event.getItem().getItemStack() == null) {
-            return;
-        }
-        Item item = event.getItem();
-        HiltItemStack hiltItemStack = new HiltItemStack(item.getItemStack());
-        int stacksize = hiltItemStack.getAmount();
-        if (hiltItemStack.getType() != Material.GOLD_NUGGET) {
-            return;
-        }
-        if (!hiltItemStack.getName().equals(ChatColor.GOLD + "REWARD!")) {
-            return;
-        }
-        String name = item.getCustomName();
-        if (name == null) {
-            return;
-        }
+    HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
+    his.setName(ChatColor.GOLD + "REWARD!");
+    his.setLore(Arrays.asList(DF.format(reward)));
 
-        event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1.0F, 1.0F);
+    while (numberOfDrops > 0) {
+      event.getDrops().add(his);
+      numberOfDrops--;
+    }
+  }
 
-        String stripped = ChatColor.stripColor(name);
-        String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
-        double amount = stacksize * NumberUtils.toDouble(replaced);
-        plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void onItemPickupEvent(PlayerPickupItemEvent event) {
+    if (event.isCancelled()) {
+      return;
+    }
+    if (event.getItem() == null || event.getItem().getItemStack() == null) {
+      return;
+    }
+    Item item = event.getItem();
+    HiltItemStack hiltItemStack = new HiltItemStack(item.getItemStack());
+    int stacksize = hiltItemStack.getAmount();
+    if (hiltItemStack.getType() != Material.GOLD_NUGGET) {
+      return;
+    }
+    if (!hiltItemStack.getName().equals(ChatColor.GOLD + "REWARD!")) {
+      return;
+    }
+    String name = item.getCustomName();
+    if (name == null) {
+      return;
+    }
 
-        event.getItem().remove();
+    event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1.0F, 1.0F);
+
+    String stripped = ChatColor.stripColor(name);
+    String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
+    double amount = stacksize * NumberUtils.toDouble(replaced);
+    plugin.getEconomy().depositPlayer(event.getPlayer(), amount);
+
+    event.getItem().remove();
+    event.setCancelled(true);
+
+    String message = "&2&lCarried Bits: &f&l" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
+        event.getPlayer()));
+    ChatAPI.sendJsonMsg(ChatAPI.ChatMessageType.ACTION_BAR, TextUtils.color(message), event.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.HIGH)
+  public void onPlayerDeathEvent(final PlayerDeathEvent event) {
+    if (plugin.getSettings().getStringList("config.no-loss-worlds").contains(event.getEntity().getWorld()
+        .getName())) {
+      return;
+    }
+    if (dead.contains(event.getEntity().getUniqueId())) {
+      return;
+    }
+    dead.add(event.getEntity().getUniqueId());
+    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+      @Override
+      public void run() {
+        dead.remove(event.getEntity().getUniqueId());
+      }
+    }, 20L * 5);
+    Player player = event.getEntity();
+    World world = player.getWorld();
+    int maximumKeptBits;
+    if (event.getEntity().hasPermission("mint.keep")) {
+      maximumKeptBits = 1000;
+    } else {
+      maximumKeptBits = 100;
+    }
+    double amount = plugin.getEconomy().getBalance(event.getEntity()) - maximumKeptBits;
+    if (amount > 0) {
+      HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
+      his.setName(ChatColor.GOLD + "REWARD!");
+      his.setLore(Arrays.asList(DF.format(amount)));
+      world.dropItemNaturally(player.getLocation(), his);
+      plugin.getEconomy().setBalance(event.getEntity(), maximumKeptBits);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
+    plugin.getManager().updateWallet(event.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onPlayerJoinEvent(PlayerJoinEvent event) {
+    plugin.getManager().updateWallet(event.getPlayer());
+  }
+
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void onItemSpawnEvent(ItemSpawnEvent event) {
+    if (event.getEntity().getItemStack().getType() == Material.GOLD_NUGGET) {
+      HiltItemStack nuggetStack = new HiltItemStack(event.getEntity().getItemStack());
+      if (!nuggetStack.getName().equals(ChatColor.GOLD + "REWARD!") || nuggetStack.getLore().isEmpty()) {
+        return;
+      }
+      String s = nuggetStack.getLore().get(0);
+      String stripped = ChatColor.stripColor(s);
+      double amount = NumberUtils.toDouble(stripped);
+      if (amount <= 0.00D) {
         event.setCancelled(true);
-
-        String message = "&2&lCarried Bits: &f&l" + plugin.getEconomy().format(plugin.getEconomy().getBalance(
-                event.getPlayer()));
-        ChatAPI.sendJsonMsg(ChatAPI.ChatMessageType.ACTION_BAR, TextUtils.color(message), event.getPlayer());
+        return;
+      }
+      int antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
+      HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
+      nugget.setName(ChatColor.GOLD + "REWARD!");
+      nugget.setLore(Arrays.asList(DF.format(amount), "S:" + antiStackSerial));
+      event.getEntity().setItemStack(nugget);
+      event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
+      event.getEntity().setCustomNameVisible(true);
     }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerDeathEvent(final PlayerDeathEvent event) {
-        if (plugin.getSettings().getStringList("config.no-loss-worlds").contains(event.getEntity().getWorld()
-                .getName())) {
-            return;
-        }
-        if (dead.contains(event.getEntity().getUniqueId())) {
-            return;
-        }
-        dead.add(event.getEntity().getUniqueId());
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                dead.remove(event.getEntity().getUniqueId());
-            }
-        }, 20L * 5);
-        Player player = event.getEntity();
-        World world = player.getWorld();
-        int maximumKeptBits;
-        if (event.getEntity().hasPermission("mint.keep")) {
-            maximumKeptBits = 1000;
-        } else {
-            maximumKeptBits = 100;
-        }
-        double amount = plugin.getEconomy().getBalance(event.getEntity()) - maximumKeptBits;
-        if (amount > 0) {
-            HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
-            his.setName(ChatColor.GOLD + "REWARD!");
-            his.setLore(Arrays.asList(DF.format(amount)));
-            world.dropItemNaturally(player.getLocation(), his);
-            plugin.getEconomy().setBalance(event.getEntity(), maximumKeptBits);
-        }
+    if (event.getEntity().getItemStack().getType() == Material.PAPER) {
+      HiltItemStack iS = new HiltItemStack(event.getEntity().getItemStack());
+      if (iS.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
+        event.getEntity().remove();
+      }
     }
+  }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
-        plugin.getManager().updateWallet(event.getPlayer());
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void onCraftItem(CraftItemEvent event) {
+    for (ItemStack is : event.getInventory().getMatrix()) {
+      if (is == null || is.getType() != Material.PAPER) {
+        continue;
+      }
+      HiltItemStack his = new HiltItemStack(is);
+      if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
+        event.setCancelled(true);
+        return;
+      }
     }
+  }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemSpawnEvent(ItemSpawnEvent event) {
-        if (event.getEntity().getItemStack().getType() == Material.GOLD_NUGGET) {
-            HiltItemStack nuggetStack = new HiltItemStack(event.getEntity().getItemStack());
-            if (!nuggetStack.getName().equals(ChatColor.GOLD + "REWARD!") || nuggetStack.getLore().isEmpty()) {
-                return;
-            }
-            String s = nuggetStack.getLore().get(0);
-            String stripped = ChatColor.stripColor(s);
-            double amount = NumberUtils.toDouble(stripped);
-            if (amount <= 0.00D) {
-                event.setCancelled(true);
-                return;
-            }
-            int antiStackSerial = ThreadLocalRandom.current().nextInt(0, 999999);
-            HiltItemStack nugget = new HiltItemStack(Material.GOLD_NUGGET);
-            nugget.setName(ChatColor.GOLD + "REWARD!");
-            nugget.setLore(Arrays.asList(DF.format(amount), "S:" + antiStackSerial));
-            event.getEntity().setItemStack(nugget);
-            event.getEntity().setCustomName(ChatColor.YELLOW + plugin.getEconomy().format(amount));
-            event.getEntity().setCustomNameVisible(true);
-        }
-        if (event.getEntity().getItemStack().getType() == Material.PAPER) {
-            HiltItemStack iS = new HiltItemStack(event.getEntity().getItemStack());
-            if (iS.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
-                event.getEntity().remove();
-            }
-        }
+  @EventHandler
+  public void onInventoryClickEvent(InventoryClickEvent event) {
+    ItemStack is = event.getCurrentItem();
+    if (is == null || is.getType() == Material.AIR) {
+      return;
     }
+    HiltItemStack his = new HiltItemStack(is);
+    if (his.getLore().size() < 1) {
+      return;
+    }
+    if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+      event.setCancelled(true);
+    }
+  }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onCraftItem(CraftItemEvent event) {
-        for (ItemStack is : event.getInventory().getMatrix()) {
-            if (is == null || is.getType() != Material.PAPER) {
-                continue;
-            }
-            HiltItemStack his = new HiltItemStack(is);
-            if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+  @EventHandler
+  public void onInventoryClose(InventoryCloseEvent event) {
+    if (!event.getInventory().getName()
+        .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
+      return;
     }
+    double value = 0D;
+    int amountSold = 0;
+    for (ItemStack itemStack : event.getInventory().getContents()) {
+      if (itemStack == null || itemStack.getType() == Material.AIR) {
+        continue;
+      }
+      HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
+      if (hiltItemStack.getName()
+          .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
+        continue;
+      }
+      List<String> lore = hiltItemStack.getLore();
+      double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
+      if (!lore.isEmpty()) {
+        amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
+        amount += plugin.getSettings().getDouble("prices.options.lore.per-line", 1D) * lore.size();
+      }
+      String strippedName = ChatColor.stripColor(hiltItemStack.getName());
+      if (strippedName.startsWith("Socket Gem")) {
+        value += plugin.getSettings().getDouble("prices.special.gems") * hiltItemStack.getAmount();
+      } else if (plugin.getSettings().isSet("prices.names." + strippedName)) {
+        value += plugin.getSettings().getDouble("prices.names." + strippedName, 0D) * hiltItemStack.getAmount();
+      } else {
+        value += amount * hiltItemStack.getAmount();
+      }
+    }
+    for (HumanEntity entity : event.getViewers()) {
+      if (!(entity instanceof Player)) {
+        continue;
+      }
+      if (value > 0) {
+        plugin.getEconomy().depositPlayer((Player) entity, value);
+        MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
+            new String[][]{{"%amount%", "" + amountSold},
+                {"%currency%", plugin.getEconomy().format(value)}});
+      }
+    }
+  }
 
-    @EventHandler
-    public void onInventoryClickEvent(InventoryClickEvent event) {
-        ItemStack is = event.getCurrentItem();
-        if (is == null || is.getType() == Material.AIR) {
-            return;
-        }
-        HiltItemStack his = new HiltItemStack(is);
-        if (his.getLore().size() < 1) {
-            return;
-        }
-        if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-            event.setCancelled(true);
-        }
+  @EventHandler
+  public void onInventoryPickupItem(InventoryPickupItemEvent event) {
+    HiltItemStack his = new HiltItemStack(event.getItem().getItemStack());
+    if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""))) ||
+        his.getName().equals(ChatColor.GOLD + "REWARD!")) {
+      event.setCancelled(true);
     }
-
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (!event.getInventory().getName()
-                .equals(TextUtils.color(plugin.getSettings().getString("language.pawn-shop-name")))) {
-            return;
-        }
-        double value = 0D;
-        int amountSold = 0;
-        for (ItemStack itemStack : event.getInventory().getContents()) {
-            if (itemStack == null || itemStack.getType() == Material.AIR) {
-                continue;
-            }
-            HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
-            if (hiltItemStack.getName()
-                    .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-                continue;
-            }
-            List<String> lore = hiltItemStack.getLore();
-            double amount = plugin.getSettings().getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
-            if (!lore.isEmpty()) {
-                amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
-                amount += plugin.getSettings().getDouble("prices.options.lore.per-line", 1D) * lore.size();
-            }
-            String strippedName = ChatColor.stripColor(hiltItemStack.getName());
-            if (strippedName.startsWith("Socket Gem")) {
-                value += plugin.getSettings().getDouble("prices.special.gems") * hiltItemStack.getAmount();
-            } else if (plugin.getSettings().isSet("prices.names." + strippedName)) {
-                value += plugin.getSettings().getDouble("prices.names." + strippedName, 0D) * hiltItemStack.getAmount();
-            } else {
-                value += amount * hiltItemStack.getAmount();
-            }
-        }
-        for (HumanEntity entity : event.getViewers()) {
-            if (!(entity instanceof Player)) {
-                continue;
-            }
-            if (value > 0) {
-                plugin.getEconomy().depositPlayer((Player) entity, value);
-                MessageUtils.sendMessage(entity, plugin.getSettings().getString("language.pawn-success"),
-                        new String[][]{{"%amount%", "" + amountSold},
-                                {"%currency%", plugin.getEconomy().format(value)}});
-            }
-        }
-    }
-
-    @EventHandler
-    public void onInventoryPickupItem(InventoryPickupItemEvent event) {
-        HiltItemStack his = new HiltItemStack(event.getItem().getItemStack());
-        if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""))) ||
-                his.getName().equals(ChatColor.GOLD + "REWARD!")) {
-            event.setCancelled(true);
-        }
-    }
+  }
 
 }
