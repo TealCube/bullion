@@ -57,7 +57,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MintListener implements Listener {
 
-    private static final DecimalFormat DF = new DecimalFormat("#.##");
+    public static final DecimalFormat DF = new DecimalFormat("#.##");
     private final MintPlugin plugin;
     private final Set<UUID> dead;
 
@@ -81,38 +81,7 @@ public class MintListener implements Listener {
         if (player == null) {
             return;
         }
-        PlayerInventory pi = player.getInventory();
-        HiltItemStack wallet = null;
-        ItemStack[] contents = pi.getContents();
-        for (ItemStack is : contents) {
-            if (is == null || is.getType() == Material.AIR) {
-                continue;
-            }
-            HiltItemStack his = new HiltItemStack(is);
-            if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-                wallet = his;
-            }
-        }
-        if (wallet == null) {
-            wallet = new HiltItemStack(Material.PAPER);
-        }
-        pi.removeItem(wallet);
-        player.updateInventory();
-        double b = plugin.getEconomy().getBalance(player);
-        wallet.setName(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")));
-        wallet.setLore(TextUtils.args(
-                TextUtils.color(plugin.getSettings().getStringList("config.wallet.lore")),
-                new String[][]{{"%amount%", DF.format(b)},
-                        {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
-                                : plugin.getEconomy().currencyNamePlural()}}));
-        if (pi.getItem(17) != null && pi.getItem(17).getType() != Material.AIR) {
-            ItemStack old = new HiltItemStack(pi.getItem(17));
-            pi.setItem(17, wallet);
-            pi.addItem(old);
-        } else {
-            pi.setItem(17, wallet);
-        }
-        player.updateInventory();
+        plugin.getManager().updateWallet(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -130,9 +99,20 @@ public class MintListener implements Listener {
         }
         EntityType entityType = event.getEntityType();
         double reward = plugin.getSettings().getDouble("rewards." + entityType.name(), 0D);
+
         if (reward == 0D) {
             return;
         }
+
+        int numberOfDrops = 1;
+        double bombChance = 0.001;
+        if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
+            bombChance = 0.01;
+        }
+        if (ThreadLocalRandom.current().nextDouble() <= bombChance) {
+            numberOfDrops = ThreadLocalRandom.current().nextInt(10, 30);
+        }
+
         Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
         Location entityLoc = event.getEntity().getLocation();
         double distance = worldSpawn.distance(entityLoc);
@@ -150,18 +130,14 @@ public class MintListener implements Listener {
 
         reward = Math.ceil(gde.getAmount() * (0.5D + ThreadLocalRandom.current().nextDouble() / 2));
 
+        if (numberOfDrops > 1) {
+            reward *= 5;
+        }
+
         HiltItemStack his = new HiltItemStack(Material.GOLD_NUGGET);
         his.setName(ChatColor.GOLD + "REWARD!");
         his.setLore(Arrays.asList(DF.format(reward)));
 
-        int numberOfDrops = 1;
-        double bombChance = 0.001;
-        if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
-            bombChance = 0.01;
-        }
-        if (ThreadLocalRandom.current().nextDouble() <= bombChance) {
-            numberOfDrops = ThreadLocalRandom.current().nextInt(50, 100);
-        }
         while (numberOfDrops > 0) {
             event.getDrops().add(his);
             numberOfDrops--;
@@ -241,9 +217,7 @@ public class MintListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
-        Player player = event.getPlayer();
-        plugin.getEconomy().withdrawPlayer(player, 1);
-        plugin.getEconomy().depositPlayer(player, 1);
+        plugin.getManager().updateWallet(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -354,8 +328,7 @@ public class MintListener implements Listener {
     public void onInventoryPickupItem(InventoryPickupItemEvent event) {
         HiltItemStack his = new HiltItemStack(event.getItem().getItemStack());
         if (his.getName().equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""))) ||
-                his.getName().equals(
-                        ChatColor.GOLD + "REWARD!")) {
+                his.getName().equals(ChatColor.GOLD + "REWARD!")) {
             event.setCancelled(true);
         }
     }

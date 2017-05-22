@@ -27,7 +27,6 @@ import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import info.faceland.mint.MintCommand;
 import info.faceland.mint.MintEconomy;
 import info.faceland.mint.MintListener;
-import info.faceland.mint.MintRunnable;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
@@ -96,7 +95,7 @@ public class MintPlugin extends FacePlugin {
         settings = new MasterConfiguration();
         settings.load(configYAML, rewardsYAML, languageYAML, pricesYAML);
 
-        manager = new MintManager();
+        manager = new MintManager(this);
 
         try {
             economy = MintEconomy.class.getConstructor(MintPlugin.class).newInstance(this);
@@ -122,16 +121,13 @@ public class MintPlugin extends FacePlugin {
             manager.setBankBalance(account.getOwner(), account.getBalance());
         }
 
-        MintRunnable mintRunnable = new MintRunnable(this);
-        mintRunnable.runTaskTimer(this, 0, 20L * 5);
-
         Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
             @Override
             public void run() {
-                dataStorage.saveBankAccounts(manager.getBankAccounts());
                 dataStorage.savePlayerAccounts(manager.getPlayerAccounts());
+                dataStorage.saveBankAccounts(manager.getBankAccounts());
             }
-        }, 20L * 300, 20L * 300);
+        }, 20L * 112, 20L * 300);
 
         MintListener listener = new MintListener(this);
         Bukkit.getPluginManager().registerEvents(listener, this);
