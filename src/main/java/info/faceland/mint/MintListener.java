@@ -89,6 +89,9 @@ public class MintListener implements Listener {
     if (event instanceof PlayerDeathEvent || event.getEntity().getKiller() == null) {
       return;
     }
+    if (event.getEntity().getCustomName() == null || event.getEntity().getCustomName().startsWith(ChatColor.WHITE + "Spawned")) {
+      return;
+    }
     String dropWorld = event.getEntity().getWorld().getName();
     if (!plugin.getSettings().getBoolean("config.money-drop-worlds." + dropWorld + ".enabled", false)) {
       return;

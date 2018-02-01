@@ -111,7 +111,6 @@ public class MintEconomy implements Economy {
 
     @Override
     public double getBalance(String s) {
-        // logger.debug("getBalance({})", s);
         if (!hasAccount(s)) {
             return 0;
         }
@@ -121,7 +120,7 @@ public class MintEconomy implements Economy {
         } catch (IllegalArgumentException e) {
             uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
-        return plugin.getManager().getPlayerBalance(uuid);
+        return (double) Math.round(plugin.getManager().getPlayerBalance(uuid) * 100) / 100;
     }
 
     @Override
