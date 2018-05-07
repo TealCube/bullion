@@ -58,7 +58,7 @@
         <dependency>
             <groupId>io.pixeloutlaw</groupId>
             <artifactId>facecore</artifactId>
-            <version>3.0.3-SNAPSHOT</version>
+            <version>3.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
