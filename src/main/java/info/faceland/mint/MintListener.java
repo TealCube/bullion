@@ -108,9 +108,9 @@ public class MintListener implements Listener {
     }
 
     int numberOfDrops = 1;
-    double bombChance = 0.001;
+    double bombChance = 0.002;
     if (event.getEntity().getKiller().hasPotionEffect(PotionEffectType.LUCK)) {
-      bombChance = 0.01;
+      bombChance = 0.005;
     }
     if (ThreadLocalRandom.current().nextDouble() <= bombChance) {
       numberOfDrops = ThreadLocalRandom.current().nextInt(10, 30);
