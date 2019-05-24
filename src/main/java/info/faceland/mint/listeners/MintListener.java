@@ -19,41 +19,26 @@
 package info.faceland.mint.listeners;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.bullion.GoldDropEvent;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import gyurix.spigotlib.ChatAPI;
-import info.faceland.mint.MintEvent;
 import info.faceland.mint.util.MintUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.text.DecimalFormat;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.nunnerycode.mint.MintPlugin;
 
@@ -66,24 +51,6 @@ public class MintListener implements Listener {
 
   public MintListener(MintPlugin mintPlugin) {
     this.plugin = mintPlugin;
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onMintEvent(MintEvent mintEvent) {
-    if (mintEvent.getUuid().equals("")) {
-      return;
-    }
-    UUID uuid;
-    try {
-      uuid = UUID.fromString(mintEvent.getUuid());
-    } catch (IllegalArgumentException e) {
-      uuid = Bukkit.getPlayer(mintEvent.getUuid()).getUniqueId();
-    }
-    Player player = Bukkit.getPlayer(uuid);
-    if (player == null) {
-      return;
-    }
-    plugin.getManager().updateWallet(player);
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -125,47 +92,6 @@ public class MintListener implements Listener {
     ChatAPI.sendJsonMsg(ChatAPI.ChatMessageType.ACTION_BAR, TextUtils.color(message), player);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
-    plugin.getManager().updateWallet(event.getPlayer());
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void onPlayerJoinEvent(PlayerJoinEvent event) {
-    plugin.getManager().updateWallet(event.getPlayer());
-  }
-
-  @EventHandler(priority = EventPriority.LOWEST)
-  public void onCraftItem(CraftItemEvent event) {
-    for (ItemStack is : event.getInventory().getMatrix()) {
-      if (is == null || is.getType() != Material.PAPER) {
-        continue;
-      }
-      HiltItemStack his = new HiltItemStack(is);
-      if (his.getName()
-          .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name")))) {
-        event.setCancelled(true);
-        return;
-      }
-    }
-  }
-
-  @EventHandler
-  public void onInventoryClickEvent(InventoryClickEvent event) {
-    ItemStack is = event.getCurrentItem();
-    if (is == null || is.getType() == Material.AIR) {
-      return;
-    }
-    HiltItemStack his = new HiltItemStack(is);
-    if (his.getLore().size() < 1) {
-      return;
-    }
-    if (his.getName()
-        .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-      event.setCancelled(true);
-    }
-  }
-
   @EventHandler
   public void onPawnClose(InventoryCloseEvent event) {
     if (!event.getInventory().getName()
@@ -179,10 +105,6 @@ public class MintListener implements Listener {
         continue;
       }
       HiltItemStack hiltItemStack = new HiltItemStack(itemStack);
-      if (hiltItemStack.getName()
-          .equals(TextUtils.color(plugin.getSettings().getString("config.wallet.name", "")))) {
-        continue;
-      }
       List<String> lore = hiltItemStack.getLore();
       double amount = plugin.getSettings()
           .getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);

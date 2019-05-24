@@ -1,6 +1,5 @@
 package info.faceland.mint.listeners;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import info.faceland.mint.util.MintUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;

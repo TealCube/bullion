@@ -20,11 +20,6 @@ no-loss-worlds:
 - weenieland
 - mcworldforbabies
 
-wallet:
-  name: "<dark green>My Wallet"
-  lore:
-  - "<white>%amount% <green>%currency%"
-
 database:
   enabled: true
   host: localhost

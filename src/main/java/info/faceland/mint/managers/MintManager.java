@@ -18,15 +18,7 @@
  */
 package info.faceland.mint.managers;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
-import info.faceland.mint.listeners.MintListener;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.nunnerycode.mint.MintPlugin;
 import org.nunnerycode.mint.accounts.BankAccount;
 import org.nunnerycode.mint.accounts.PlayerAccount;
 
@@ -40,12 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MintManager {
 
-  private final MintPlugin plugin;
   private final Map<UUID, PlayerAccount> playerAccountMap;
   private final Map<UUID, BankAccount> bankAccountMap;
 
-  public MintManager(MintPlugin mintPlugin) {
-    this.plugin = mintPlugin;
+  public MintManager() {
     playerAccountMap = new ConcurrentHashMap<>();
     bankAccountMap = new ConcurrentHashMap<>();
   }
@@ -111,29 +101,6 @@ public class MintManager {
 
   public Set<BankAccount> getBankAccounts() {
     return new HashSet<>(bankAccountMap.values());
-  }
-
-  public void updateWallet(Player player) {
-    PlayerInventory pi = player.getInventory();
-    HiltItemStack wallet = new HiltItemStack(Material.PAPER);
-    double b = plugin.getEconomy().getBalance(player);
-    String walletName = TextUtils.color(plugin.getSettings().getString("config.wallet.name", ""));
-    wallet.setName(walletName);
-    wallet.setLore(TextUtils.args(
-        TextUtils.color(plugin.getSettings().getStringList("config.wallet.lore")),
-        new String[][]{{"%amount%", MintListener.DF.format(b)},
-            {"%currency%", b == 1.00D ? plugin.getEconomy().currencyNameSingular()
-                : plugin.getEconomy().currencyNamePlural()}}));
-    if (pi.getItem(17) == null || pi.getItem(17).getType() != Material.AIR) {
-      pi.setItem(17, wallet);
-    } else if (pi.getItem(17).getItemMeta().getDisplayName().equals(walletName)) {
-      pi.setItem(17, wallet);
-    } else {
-      ItemStack old = new HiltItemStack(pi.getItem(17));
-      pi.setItem(17, wallet);
-      pi.addItem(old);
-    }
-    player.updateInventory();
   }
 
 }

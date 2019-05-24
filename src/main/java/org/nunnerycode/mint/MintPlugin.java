@@ -91,7 +91,7 @@ public class MintPlugin extends FacePlugin {
     settings = new MasterConfiguration();
     settings.load(configYAML, rewardsYAML, languageYAML, pricesYAML);
 
-    manager = new MintManager(this);
+    manager = new MintManager();
 
     try {
       economy = MintEconomy.class.getConstructor(MintPlugin.class).newInstance(this);
