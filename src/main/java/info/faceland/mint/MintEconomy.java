@@ -34,7 +34,7 @@ import java.util.UUID;
 
 public class MintEconomy implements Economy {
 
-    private static final DecimalFormat DF = new DecimalFormat("#.##");
+    private static final DecimalFormat DF = new DecimalFormat("###,###,###");
     private MintPlugin plugin;
     //private Logger logger;
 
@@ -65,7 +65,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public String format(double v) {
-        if (v == 1.00D) {
+        if (Math.floor(v) == 1.00D) {
             return String.format("%s %s", DF.format(v), currencyNameSingular());
         }
         return String.format("%s %s", DF.format(v), currencyNamePlural());

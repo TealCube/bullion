@@ -16,16 +16,17 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.nunnerycode.mint;
+package info.faceland.mint.managers;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
-import info.faceland.mint.MintListener;
+import info.faceland.mint.listeners.MintListener;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.nunnerycode.mint.MintPlugin;
 import org.nunnerycode.mint.accounts.BankAccount;
 import org.nunnerycode.mint.accounts.PlayerAccount;
 

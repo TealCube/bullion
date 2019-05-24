@@ -1,4 +1,30 @@
 version: "0.0.4"
+
+starting-balance: 0
+currency-singular: "Bit"
+currency-plural: "Bits"
+pay-distance-max: 25
+
+money-drop-worlds:
+  pveworld:
+    enabled: true
+    drop-chance: 0.25
+    multiplier-per-100-blocks: 1.0
+    exponential-bonus: 1.1
+
+bit-bomb-chance: 0.02
+lucky-bit-bomb-chance: 0.04
+
+no-loss-worlds:
+- pvpworld
+- weenieland
+- mcworldforbabies
+
+wallet:
+  name: "<dark green>My Wallet"
+  lore:
+  - "<white>%amount% <green>%currency%"
+
 database:
   enabled: true
   host: localhost
@@ -6,21 +32,3 @@ database:
   username: localuser
   password: localpassword
   database: localdb
-starting-balance: 0
-currency-singular: "Bit"
-currency-plural: "Bits"
-pay-distance-max: 25
-money-drop-worlds:
-  pveworld:
-    enabled: true
-    drop-chance: 0.25
-    mult-distance: 10
-    mult-amount: 0.01
-no-loss-worlds:
-- pvpworld
-- weenieland
-- mcworldforbabies
-wallet:
-  name: "<dark green>My Wallet"
-  lore:
-  - "<white>%amount% <green>%currency%"
