@@ -21,13 +21,14 @@ package info.faceland.mint;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import info.faceland.mint.util.MintUtil;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.nunnerycode.mint.MintPlugin;
 import se.ranzdo.bukkit.methodcommand.Arg;
 import se.ranzdo.bukkit.methodcommand.Command;
@@ -325,20 +326,20 @@ public class MintCommand {
 
   @Command(identifier = "mint price", permissions = "mint.price", onlyPlayers = true)
   public void priceCommand(Player p) {
-    HiltItemStack hiltItemStack = new HiltItemStack(p.getItemInHand());
-    if (hiltItemStack.getType() == Material.AIR) {
+    ItemStack item = p.getItemInHand();
+    if (item.getType() == Material.AIR) {
       MessageUtils.sendMessage(p, "<yellow>You must be holding an item to check its price!");
       return;
     }
-    List<String> lore = hiltItemStack.getLore();
+    List<String> lore = ItemStackExtensionsKt.getLore(item);
     double amount = plugin.getSettings()
-        .getDouble("prices.materials." + hiltItemStack.getType().name(), 0D);
+        .getDouble("prices.materials." + item.getType().name(), 0D);
     if (!lore.isEmpty()) {
       amount += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
       amount +=
           plugin.getSettings().getDouble("prices.options.lore" + ".per-line", 1D) * lore.size();
     }
-    String strippedName = ChatColor.stripColor(hiltItemStack.getName());
+    String strippedName = ChatColor.stripColor(ItemStackExtensionsKt.getDisplayName(item));
     if (strippedName.startsWith("Socket Gem")) {
       amount = plugin.getSettings().getDouble("prices.special.gems");
     } else if (plugin.getSettings().isSet("prices.names." + strippedName)) {

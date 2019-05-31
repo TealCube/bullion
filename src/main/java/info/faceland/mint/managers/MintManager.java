@@ -19,6 +19,9 @@
 package info.faceland.mint.managers;
 
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.Validate;
+import java.util.HashMap;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.nunnerycode.mint.accounts.BankAccount;
 import org.nunnerycode.mint.accounts.PlayerAccount;
 
@@ -32,13 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MintManager {
 
-  private final Map<UUID, PlayerAccount> playerAccountMap;
-  private final Map<UUID, BankAccount> bankAccountMap;
-
-  public MintManager() {
-    playerAccountMap = new ConcurrentHashMap<>();
-    bankAccountMap = new ConcurrentHashMap<>();
-  }
+  private final Map<UUID, PlayerAccount> playerAccountMap = new ConcurrentHashMap<>();
+  private final Map<UUID, BankAccount> bankAccountMap = new ConcurrentHashMap<>();
+  private final Map<UUID, Inventory> pawnShopMap = new HashMap<>();
 
   public double getPlayerBalance(UUID uuid) {
     Validate.notNull(uuid, "uuid cannot be null");
@@ -93,6 +92,18 @@ public class MintManager {
       strings.add(uuid.toString());
     }
     return strings;
+  }
+
+  public void addPlayerToPawnMap(Player player, Inventory inventory) {
+    pawnShopMap.put(player.getUniqueId(), inventory);
+  }
+
+  public void removePlayerFromPawnMap(Player player) {
+    pawnShopMap.remove(player.getUniqueId());
+  }
+
+  public boolean isPlayerInPawnMap(Player player) {
+    return pawnShopMap.containsKey(player.getUniqueId());
   }
 
   public Set<PlayerAccount> getPlayerAccounts() {
