@@ -34,11 +34,13 @@ import java.util.UUID;
 
 public class MintEconomy implements Economy {
 
-    private static final DecimalFormat DF = new DecimalFormat("#.##");
+    private static final DecimalFormat DF = new DecimalFormat("###,###,###");
     private MintPlugin plugin;
+    //private Logger logger;
 
     public MintEconomy(MintPlugin plugin) {
         this.plugin = plugin;
+        //this.logger = Lumberjack.loggerToFile(MintEconomy.class, this.plugin.getLoggerFile().getAbsolutePath());
     }
 
     @Override
@@ -63,7 +65,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public String format(double v) {
-        if (v == 1.00D) {
+        if (Math.floor(v) == 1.00D) {
             return String.format("%s %s", DF.format(v), currencyNameSingular());
         }
         return String.format("%s %s", DF.format(v), currencyNamePlural());
@@ -81,11 +83,12 @@ public class MintEconomy implements Economy {
 
     @Override
     public boolean hasAccount(String s) {
+        // logger.debug("hasAccount({})", s);
         UUID uuid;
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         return plugin.getManager().hasPlayerAccount(uuid) ||
                 createPlayerAccount(s);
@@ -115,9 +118,9 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
-        return plugin.getManager().getPlayerBalance(uuid);
+        return (double) Math.round(plugin.getManager().getPlayerBalance(uuid) * 100) / 100;
     }
 
     @Override
@@ -137,6 +140,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public boolean has(String s, double v) {
+        // logger.debug("has({}, {})", s, v);
         return hasAccount(s) && getBalance(s) >= v;
     }
 
@@ -157,6 +161,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(String s, double v) {
+        // logger.debug("withdrawPlayer({}, {})", s, v);
         if (!hasAccount(s)) {
             createPlayerAccount(s);
         }
@@ -164,7 +169,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getPlayerBalance(uuid);
         if (!has(s, v)) {
@@ -192,6 +197,7 @@ public class MintEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(String s, double v) {
+        // logger.debug("depositPlayer({}, {})", s, v);
         if (!hasAccount(s)) {
             createPlayerAccount(s);
         }
@@ -199,7 +205,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getPlayerBalance(uuid);
         plugin.getManager().setPlayerBalance(uuid, balance + Math.abs(v));
@@ -228,7 +234,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         plugin.getManager().setBankBalance(uuid, 0D);
         return new EconomyResponse(0D, plugin.getManager().getBankBalance(uuid),
@@ -252,7 +258,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         if (plugin.getManager().hasBankAccount(uuid)) {
             double balance = plugin.getManager().getBankBalance(uuid);
@@ -280,7 +286,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getBankBalance(uuid);
         if (response.transactionSuccess()) {
@@ -297,7 +303,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double balance = plugin.getManager().getBankBalance(uuid);
         if (response.transactionSuccess()) {
@@ -337,11 +343,12 @@ public class MintEconomy implements Economy {
 
     @Override
     public boolean createPlayerAccount(String s) {
+        // logger.debug("createPlayerAccount({})", s);
         UUID uuid;
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         plugin.getManager().setPlayerBalance(uuid, 0D);
         Bukkit.getPluginManager().callEvent(new MintEvent(s));
@@ -368,6 +375,7 @@ public class MintEconomy implements Economy {
     }
 
     public EconomyResponse setBalance(String s, double v) {
+        // logger.debug("setBalance({}, {})", s, v);
         if (!hasAccount(s)) {
             createPlayerAccount(s);
         }
@@ -375,7 +383,7 @@ public class MintEconomy implements Economy {
         try {
             uuid = UUID.fromString(s);
         } catch (IllegalArgumentException e) {
-            uuid = Bukkit.getPlayer(s).getUniqueId();
+            uuid = Bukkit.getOfflinePlayer(s).getUniqueId();
         }
         double d = plugin.getManager().getPlayerBalance(uuid);
         plugin.getManager().setPlayerBalance(uuid, v);
