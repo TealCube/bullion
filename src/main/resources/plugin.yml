@@ -1,8 +1,9 @@
 main: org.nunnerycode.mint.MintPlugin
 name: Bullion
 version: ${project.version}
+api-version: 1.14
 depend: [Facecore, Vault]
-load: startup
+load: STARTUP
 
 commands:
   bank:
