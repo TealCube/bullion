@@ -28,7 +28,7 @@
   <parent>
     <groupId>io.pixeloutlaw</groupId>
     <artifactId>spigot-plugin-parent</artifactId>
-    <version>1.14.1.0</version>
+    <version>1.14.3.0</version>
   </parent>
 
   <artifactId>bullion</artifactId>
@@ -46,26 +46,14 @@
     <tag>HEAD</tag>
   </scm>
 
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-    <repository>
-      <id>vault-repo</id>
-      <name>The Yeti Cave Repository</name>
-      <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>io.pixeloutlaw</groupId>
       <artifactId>facecore</artifactId>
-      <version>3.1.4-SNAPSHOT</version>
+      <version>1.14.3.0</version>
     </dependency>
     <dependency>
-      <groupId>net.milkbowl.vault</groupId>
+      <groupId>com.github.MilkBowl</groupId>
       <artifactId>VaultAPI</artifactId>
       <version>1.7</version>
     </dependency>

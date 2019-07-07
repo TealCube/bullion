@@ -68,7 +68,7 @@ public class MintListener implements Listener {
     player.getWorld().playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1.0F, 1.3F);
 
     String stripped = ChatColor.stripColor(ItemStackExtensionsKt.getLore(item).get(0));
-    String replaced = CharMatcher.JAVA_LETTER.removeFrom(stripped).trim();
+    String replaced = CharMatcher.forPredicate(Character::isLetter).removeFrom(stripped).trim();
     int stacksize = item.getAmount();
 
     double amount = stacksize * NumberUtils.toDouble(replaced);
