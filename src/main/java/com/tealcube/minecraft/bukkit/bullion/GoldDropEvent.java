@@ -25,34 +25,44 @@ package com.tealcube.minecraft.bukkit.bullion;
 import info.faceland.mint.MintEvent;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
-public class GoldDropEvent extends MintEvent {
+public class GoldDropEvent extends MintEvent implements Cancellable {
 
-    private final Player killer;
-    private final LivingEntity livingEntity;
-    private double amount;
+  private final Player killer;
+  private final LivingEntity livingEntity;
+  private double amount;
+  private boolean cancelled;
 
-    public GoldDropEvent(Player killer, LivingEntity livingEntity, double amount) {
-        super(killer != null ? killer.getUniqueId().toString() : "");
-        this.killer = killer;
-        this.livingEntity = livingEntity;
-        this.amount = amount;
-    }
+  public GoldDropEvent(Player killer, LivingEntity livingEntity, double amount) {
+    super(killer != null ? killer.getUniqueId().toString() : "");
+    this.killer = killer;
+    this.livingEntity = livingEntity;
+    this.amount = amount;
+  }
 
-    public Player getKiller() {
-        return killer;
-    }
+  public Player getKiller() {
+    return killer;
+  }
 
-    public LivingEntity getLivingEntity() {
-        return livingEntity;
-    }
+  public LivingEntity getLivingEntity() {
+    return livingEntity;
+  }
 
-    public double getAmount() {
-        return amount;
-    }
+  public double getAmount() {
+    return amount;
+  }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+  public void setAmount(double amount) {
+    this.amount = amount;
+  }
+
+  public boolean isCancelled() {
+    return cancelled;
+  }
+
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+  }
 
 }

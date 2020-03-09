@@ -18,11 +18,16 @@
  */
 package info.faceland.mint.util;
 
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.Arrays;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class MintUtil {
@@ -41,5 +46,21 @@ public class MintUtil {
         && CASH_STRING.equals(itemStack.getItemMeta().getDisplayName())
         && itemStack.getItemMeta().getLore() != null && !itemStack.getItemMeta().getLore()
         .isEmpty();
+  }
+
+  public static int getMobLevel(LivingEntity livingEntity) {
+    int level;
+    if (livingEntity instanceof Player) {
+      level = ((Player) livingEntity).getLevel();
+    } else if (livingEntity.hasMetadata("LVL")) {
+      level = livingEntity.getMetadata("LVL").get(0).asInt();
+    } else if (StringUtils.isBlank(livingEntity.getCustomName())) {
+      level = 0;
+    } else {
+      String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate()
+          .collapseFrom(ChatColor.stripColor(livingEntity.getCustomName()), ' ').trim();
+      level = NumberUtils.toInt(lev.split(" ")[0], 0);
+    }
+    return level;
   }
 }

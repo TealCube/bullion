@@ -62,23 +62,34 @@ public class DeathListener implements Listener {
     }
 
     String world = event.getEntity().getWorld().getName();
-    Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
-    Location entityLoc = event.getEntity().getLocation();
-    double distance = worldSpawn.distance(entityLoc);
 
-    double multPer100Blocks = plugin.getSettings()
-        .getDouble("config.money-drop-worlds." + world + ".multiplier-per-100-blocks", 0.0);
     double exponent = plugin.getSettings()
         .getDouble("config.money-drop-worlds." + world + ".exponential-bonus", 1D);
 
-    double distMult = 1 + ((distance / 100) * multPer100Blocks);
-
-    reward *= distMult;
+    String style = plugin.getSettings().getString("config.money-drop-calculation", "distance");
+    if ("distance".equalsIgnoreCase(style)) {
+      double multPer100Blocks = plugin.getSettings()
+          .getDouble("config.money-drop-worlds." + world + ".multiplier-per-100-blocks", 0.0);
+      Location worldSpawn = event.getEntity().getWorld().getSpawnLocation();
+      Location entityLoc = event.getEntity().getLocation();
+      double distance = worldSpawn.distance(entityLoc);
+      double distMult = 1 + ((distance / 100) * multPer100Blocks);
+      reward *= distMult;
+    } else {
+      double multPer100Levels = plugin.getSettings()
+          .getDouble("config.money-drop-worlds." + world + ".multiplier-per-100-levels", 0.0);
+      float level = MintUtil.getMobLevel(event.getEntity());
+      reward *= 1 + ((level / 100) * multPer100Levels);
+    }
     reward = Math.pow(reward, exponent);
     reward *= 0.75 + ThreadLocalRandom.current().nextDouble() / 2;
 
     GoldDropEvent gde = new GoldDropEvent(event.getEntity().getKiller(), event.getEntity(), reward);
     Bukkit.getPluginManager().callEvent(gde);
+
+    if (gde.isCancelled()) {
+      return;
+    }
 
     reward = Math.max(1, gde.getAmount());
 
