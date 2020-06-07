@@ -29,6 +29,7 @@ import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
 import java.io.File;
+import java.text.DecimalFormat;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -51,14 +52,21 @@ public class MintPlugin extends FacePlugin {
   private DataStorage dataStorage;
   private BukkitTask saveTask;
 
+  public static final DecimalFormat INT_FORMAT = new DecimalFormat("###,###,###");
+  public static final DecimalFormat DEC_FORMAT = new DecimalFormat("###,###,###.##");
+
+  public MintPlugin() {
+    _INSTANCE = this;
+    MintPlaceholders mintPlaceholders = new MintPlaceholders();
+    mintPlaceholders.register();
+  }
+
   public static MintPlugin getInstance() {
     return _INSTANCE;
   }
 
   @Override
   public void enable() {
-    _INSTANCE = this;
-
     VersionedSmartYamlConfiguration configYAML =
         new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
             getResource("config.yml"), VersionedConfiguration.VersionUpdateType.BACKUP_AND_UPDATE);

@@ -25,7 +25,6 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.mint.util.MintUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
-import java.text.DecimalFormat;
 import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -41,7 +40,6 @@ import org.nunnerycode.mint.MintPlugin;
 
 public class MintListener implements Listener {
 
-  public static final DecimalFormat DF = new DecimalFormat("###,###,###");
   private static final String CARRIED_BITS = TextUtils.color("&2&lCarried Bits: &f&l{}");
 
   private final MintPlugin plugin;
