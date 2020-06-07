@@ -18,10 +18,11 @@
  */
 package info.faceland.mint.listeners;
 
-import static info.faceland.mint.listeners.MintListener.DF;
+import static org.nunnerycode.mint.MintPlugin.INT_FORMAT;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.bullion.GoldDropEvent;
+import com.tealcube.minecraft.bukkit.bullion.PlayerDeathDropEvent;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import info.faceland.mint.util.MintUtil;
 import java.util.List;
@@ -50,7 +51,6 @@ public class DeathListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onEntityDeathEvent(final EntityDeathEvent event) {
-
     if (!validBitDropConditions(event)) {
       return;
     }
@@ -109,7 +109,7 @@ public class DeathListener implements Listener {
       }
       String broadcastString = plugin.getSettings().getString("language.bit-bomb-message");
       broadcastString = broadcastString.replace("%player%", event.getEntity().getKiller().getName())
-          .replace("%value%", DF.format(bombTotal));
+          .replace("%value%", INT_FORMAT.format(bombTotal));
       Bukkit.broadcastMessage(TextUtils.color(broadcastString));
     } else {
       MintUtil.spawnCashDrop(event.getEntity().getLocation(), reward);
@@ -118,16 +118,27 @@ public class DeathListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void onPlayerDeathEvent(final PlayerDeathEvent event) {
+    if (event.getEntity().getKiller() != null) {
+      return;
+    }
     if (noLossWorlds.contains(event.getEntity().getWorld().getName())) {
       return;
     }
 
-    int maximumKeptBits = event.getEntity().hasPermission("mint.keep") ? 1000 : 100;
-    double amount = plugin.getEconomy().getBalance(event.getEntity()) - maximumKeptBits;
+    int keptBits = 50;
 
-    if (amount > 0) {
-      plugin.getEconomy().setBalance(event.getEntity(), maximumKeptBits);
-      MintUtil.spawnCashDrop(event.getEntity().getLocation(), amount);
+    PlayerDeathDropEvent e = new PlayerDeathDropEvent(event.getEntity(), keptBits);
+    Bukkit.getPluginManager().callEvent(e);
+
+    if (e.isCancelled()) {
+      return;
+    }
+
+    double dropAmount = plugin.getEconomy().getBalance(event.getEntity()) - e.getAmountProtected();
+
+    if (dropAmount > 0) {
+      plugin.getEconomy().setBalance(event.getEntity(), (int) e.getAmountProtected());
+      MintUtil.spawnCashDrop(event.getEntity().getLocation(), dropAmount);
     }
   }
 
