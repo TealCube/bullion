@@ -28,7 +28,7 @@
   <parent>
     <groupId>io.pixeloutlaw</groupId>
     <artifactId>spigot-plugin-parent</artifactId>
-    <version>1.15.2.0</version>
+    <version>1.16.1.0</version>
   </parent>
 
   <artifactId>bullion</artifactId>
@@ -52,8 +52,8 @@
       <url>https://jitpack.io</url>
     </repository>
     <repository>
-      <id>spigot-repo</id>
-      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+      <id>papermc</id>
+      <url>https://papermc.io/repo/repository/maven-public/</url>
     </repository>
     <repository>
       <id>placeholderapi</id>
@@ -63,9 +63,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <scope>provided</scope>
+      <groupId>com.destroystokyo.paper</groupId>
+      <artifactId>paper-api</artifactId>
     </dependency>
     <dependency>
       <groupId>me.clip</groupId>
@@ -76,7 +75,7 @@
     <dependency>
       <groupId>io.pixeloutlaw</groupId>
       <artifactId>facecore</artifactId>
-      <version>1.15.2.4</version>
+      <version>1.16.1.8</version>
     </dependency>
     <dependency>
       <groupId>com.github.MilkBowl</groupId>

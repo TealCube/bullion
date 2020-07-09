@@ -297,11 +297,6 @@ public class MintCommand {
       @Arg(name = "world") String worldName, @Arg(name = "x") int x,
       @Arg(name = "y") int y, @Arg(name = "z") int z) {
     World world = Bukkit.getWorld(worldName);
-    if (worldName == null) {
-      sender.sendMessage(
-          TextUtils.color(plugin.getSettings().getString("language.spawn-failure", "")));
-      return;
-    }
     MintUtil.spawnCashDrop(new Location(world, x, y, z), Math.round(Math.abs(amount)));
     sender.sendMessage(TextUtils.args(
         TextUtils.color(plugin.getSettings().getString("language.spawn-success", "")),
@@ -311,7 +306,7 @@ public class MintCommand {
 
   @Command(identifier = "mint balance", permissions = "mint.balance", onlyPlayers = false)
   public void balanceSubcommand(CommandSender sender, @Arg(name = "target") Player target) {
-    MessageUtils.sendMessage(sender, "<white>%player%<green> has <white>%currency%<green>.",
+    MessageUtils.sendMessage(sender, "&f%player% &ahas &f%currency%",
         new String[][]{{"%player%", target.getDisplayName()},
             {"%currency%", plugin.getEconomy().format(plugin.getEconomy().getBalance(target))}});
   }

@@ -23,22 +23,48 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.nunnerycode.mint.MintPlugin;
 
 public class MintUtil {
 
+  public static Map<UUID, Double> protectedCashCache = new HashMap<>();
   public static String CASH_STRING = ChatColor.GOLD + "REWARD!";
 
-  public static void spawnCashDrop(Location location, double amount) {
+  public static void setProtectedCash(Player player, double amount) {
+    protectedCashCache.put(player.getUniqueId(), amount);
+  }
+
+  public static double getProtectedCash(Player player) {
+    return protectedCashCache.getOrDefault(player.getUniqueId(), 0D);
+  }
+
+  public static Item spawnCashDrop(Location location, double amount) {
     ItemStack item = new ItemStack(Material.GOLD_NUGGET);
     ItemStackExtensionsKt.setDisplayName(item, CASH_STRING);
     ItemStackExtensionsKt.setLore(item, Arrays.asList(Double.toString(amount)));
-    location.getWorld().dropItemNaturally(location, item);
+    return location.getWorld().dropItemNaturally(location, item);
+  }
+
+  public static void applyDropProtection(Item drop, UUID owner, long duration) {
+    drop.setOwner(owner);
+    Bukkit.getScheduler().runTaskLater(MintPlugin.getInstance(), () -> clearDropProtection(drop), duration);
+  }
+
+  public static void clearDropProtection(Item drop) {
+    if (drop != null) {
+      drop.setOwner(null);
+    }
   }
 
   public static boolean isCashDrop(ItemStack itemStack) {
