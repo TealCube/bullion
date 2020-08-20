@@ -58,8 +58,6 @@ public class MintPlugin extends FacePlugin {
 
   public MintPlugin() {
     _INSTANCE = this;
-    MintPlaceholders mintPlaceholders = new MintPlaceholders();
-    mintPlaceholders.register();
   }
 
   public static MintPlugin getInstance() {
@@ -68,6 +66,9 @@ public class MintPlugin extends FacePlugin {
 
   @Override
   public void enable() {
+
+    _INSTANCE = this;
+
     VersionedSmartYamlConfiguration configYAML =
         new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
             getResource("config.yml"), VersionedConfiguration.VersionUpdateType.BACKUP_AND_UPDATE);
@@ -141,6 +142,10 @@ public class MintPlugin extends FacePlugin {
         MintUtil.setProtectedCash(p, e.getAmountProtected());
       }
     }, 20L, 20L * 30);
+
+    if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+      new MintPlaceholders().register();
+    }
 
     MintListener listener = new MintListener(this);
     ItemSpawnListener itemSpawnListener = new ItemSpawnListener(this);

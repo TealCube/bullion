@@ -11,14 +11,11 @@ import org.bukkit.entity.Player;
 
 public class MintPlaceholders extends PlaceholderExpansion {
 
-  private MintPlugin plugin;
-
   @Override
   public boolean register() {
     if (!canRegister()) {
       return false;
     }
-    plugin = MintPlugin.getInstance();
     return PlaceholderAPI.registerPlaceholderHook(getIdentifier(), this);
   }
 
@@ -51,10 +48,10 @@ public class MintPlaceholders extends PlaceholderExpansion {
       return INT_FORMAT.format(MintUtil.getProtectedCash(p));
     }
     if (identifier.startsWith("bank_balance")) {
-      return INT_FORMAT.format(plugin.getManager().getBankBalance(p.getUniqueId()));
+      return INT_FORMAT.format(MintPlugin.getInstance().getManager().getBankBalance(p.getUniqueId()));
     }
     if (identifier.startsWith("full_econ_format")) {
-      double balance = plugin.getEconomy().getBalance(p);
+      double balance = MintPlugin.getInstance().getEconomy().getBalance(p);
       double protect = MintUtil.getProtectedCash(p);
       if (balance <= protect) {
         return ChatColor.YELLOW + "" + ChatColor.BOLD + INT_FORMAT.format(balance) + " Bits";
