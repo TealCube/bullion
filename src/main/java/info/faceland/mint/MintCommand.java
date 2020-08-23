@@ -297,7 +297,7 @@ public class MintCommand {
       @Arg(name = "world") String worldName, @Arg(name = "x") int x,
       @Arg(name = "y") int y, @Arg(name = "z") int z) {
     World world = Bukkit.getWorld(worldName);
-    MintUtil.spawnCashDrop(new Location(world, x, y, z), Math.round(Math.abs(amount)));
+    MintUtil.spawnCashDrop(new Location(world, x, y, z), Math.round(Math.abs(amount)), 0);
     sender.sendMessage(TextUtils.args(
         TextUtils.color(plugin.getSettings().getString("language.spawn-success", "")),
         new String[][]{{"%currency%", plugin.getEconomy().format(Math.abs(amount))
