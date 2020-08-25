@@ -69,7 +69,7 @@
     <dependency>
       <groupId>io.pixeloutlaw</groupId>
       <artifactId>facecore</artifactId>
-      <version>1.16.2.3</version>
+      <version>1.16.2.4</version>
     </dependency>
     <dependency>
       <groupId>com.github.MilkBowl</groupId>
