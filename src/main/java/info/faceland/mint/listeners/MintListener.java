@@ -18,12 +18,13 @@
  */
 package info.faceland.mint.listeners;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.AdvancedActionBarUtil;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.mint.util.MintUtil;
+import io.pixeloutlaw.minecraft.spigot.garbage.StringExtensionsKt;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.List;
 import org.bukkit.ChatColor;
@@ -40,7 +41,8 @@ import org.nunnerycode.mint.MintPlugin;
 
 public class MintListener implements Listener {
 
-  private static final String CARRIED_BITS = TextUtils.color("&2&lCarried Bits: &f&l{}");
+  private static final String CARRIED_BITS = StringExtensionsKt.chatColorize("&2&lCarried Bits: &f&l{}");
+  private static final String PLUS_BITS = StringExtensionsKt.chatColorize("&e&l+{} Bits");
 
   private final MintPlugin plugin;
 
@@ -75,9 +77,10 @@ public class MintListener implements Listener {
     event.getItem().remove();
     event.setCancelled(true);
 
-    String message = CARRIED_BITS
-        .replace("{}", plugin.getEconomy().format(plugin.getEconomy().getBalance(player)));
-    MessageUtils.sendActionBar(player, message);
+    String carriedMessage = CARRIED_BITS.replace("{}", plugin.getEconomy().format(plugin.getEconomy().getBalance(player)));
+    String plusMessage = PLUS_BITS.replace("{}", plugin.getEconomy().format(amount));
+    AdvancedActionBarUtil.addMessage(player, "bits-total", carriedMessage, 10, 10);
+    AdvancedActionBarUtil.addMessage(player, "bits-plus", plusMessage, 30, 9);
   }
 
   @EventHandler
@@ -89,7 +92,7 @@ public class MintListener implements Listener {
     int amountSold = 0;
 
     for (ItemStack itemStack : event.getInventory().getContents()) {
-      if (itemStack == null || itemStack.getType() == Material.AIR) {
+      if (itemStack.getType() == Material.AIR) {
         continue;
       }
       int stackSize = itemStack.getAmount();
@@ -102,8 +105,7 @@ public class MintListener implements Listener {
       } else if (plugin.getSettings().isSet("prices.names." + name)) {
         value = plugin.getSettings().getDouble("prices.names." + name, 0D);
       } else {
-        value = plugin.getSettings()
-            .getDouble("prices.materials." + itemStack.getType().name(), 0D);
+        value = plugin.getSettings().getDouble("prices.materials." + itemStack.getType().name(), 0D);
         if (!lore.isEmpty()) {
           value += plugin.getSettings().getDouble("prices.options.lore.base-price", 3D);
           value += plugin.getSettings().getDouble("prices.options.lore.per-line", 1D) * lore.size();
@@ -114,10 +116,8 @@ public class MintListener implements Listener {
 
     if (value > 0) {
       plugin.getEconomy().depositPlayer((Player) event.getPlayer(), value);
-      MessageUtils
-          .sendMessage(event.getPlayer(), plugin.getSettings().getString("language.pawn-success"),
-              new String[][]{{"%amount%", "" + amountSold},
-                  {"%currency%", plugin.getEconomy().format(value)}});
+      MessageUtils.sendMessage(event.getPlayer(), plugin.getSettings().getString("language.pawn-success"),
+          new String[][]{{"%amount%", "" + amountSold}, {"%currency%", plugin.getEconomy().format(value)}});
     }
     plugin.getManager().removePlayerFromPawnMap((Player) event.getPlayer());
   }
