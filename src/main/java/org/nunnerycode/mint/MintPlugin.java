@@ -18,6 +18,7 @@
  */
 package org.nunnerycode.mint;
 
+import com.tealcube.minecraft.bukkit.bullion.PlayerDeathDropEvent;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import info.faceland.mint.MintCommand;
 import info.faceland.mint.MintEconomy;
@@ -25,6 +26,7 @@ import info.faceland.mint.listeners.DeathListener;
 import info.faceland.mint.listeners.ItemSpawnListener;
 import info.faceland.mint.listeners.MintListener;
 import info.faceland.mint.managers.MintManager;
+import info.faceland.mint.util.MintUtil;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
@@ -32,9 +34,9 @@ import java.io.File;
 import java.text.DecimalFormat;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.ServicePriority;
-import org.bukkit.scheduler.BukkitTask;
 import org.nunnerycode.mint.accounts.BankAccount;
 import org.nunnerycode.mint.accounts.PlayerAccount;
 import org.nunnerycode.mint.storage.DataStorage;
@@ -50,15 +52,12 @@ public class MintPlugin extends FacePlugin {
   private MintEconomy economy;
   private MintManager manager;
   private DataStorage dataStorage;
-  private BukkitTask saveTask;
 
   public static final DecimalFormat INT_FORMAT = new DecimalFormat("###,###,###");
   public static final DecimalFormat DEC_FORMAT = new DecimalFormat("###,###,###.##");
 
   public MintPlugin() {
     _INSTANCE = this;
-    MintPlaceholders mintPlaceholders = new MintPlaceholders();
-    mintPlaceholders.register();
   }
 
   public static MintPlugin getInstance() {
@@ -67,6 +66,9 @@ public class MintPlugin extends FacePlugin {
 
   @Override
   public void enable() {
+
+    _INSTANCE = this;
+
     VersionedSmartYamlConfiguration configYAML =
         new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
             getResource("config.yml"), VersionedConfiguration.VersionUpdateType.BACKUP_AND_UPDATE);
@@ -128,10 +130,22 @@ public class MintPlugin extends FacePlugin {
       manager.setBankBalance(account.getOwner(), account.getBalance());
     }
 
-    saveTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+    Bukkit.getScheduler().runTaskTimer(this, () -> {
       dataStorage.savePlayerAccounts(manager.getPlayerAccounts());
       dataStorage.saveBankAccounts(manager.getBankAccounts());
     }, 20L * 112, 20L * 300);
+
+    Bukkit.getScheduler().runTaskTimer(this, () -> {
+      for (Player p : Bukkit.getOnlinePlayers()) {
+        PlayerDeathDropEvent e = new PlayerDeathDropEvent(p, 50);
+        Bukkit.getPluginManager().callEvent(e);
+        MintUtil.setProtectedCash(p, e.getAmountProtected());
+      }
+    }, 20L, 20L * 30);
+
+    if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+      new MintPlaceholders().register();
+    }
 
     MintListener listener = new MintListener(this);
     ItemSpawnListener itemSpawnListener = new ItemSpawnListener(this);
@@ -150,7 +164,7 @@ public class MintPlugin extends FacePlugin {
     dataStorage.savePlayerAccounts(manager.getPlayerAccounts());
     dataStorage.shutdown();
 
-    saveTask.cancel();
+    Bukkit.getScheduler().cancelTasks(this);
     HandlerList.unregisterAll(this);
   }
 

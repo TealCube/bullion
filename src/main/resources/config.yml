@@ -15,6 +15,7 @@ money-drop-worlds:
     multiplier-per-100-levels: 0.1
     exponential-bonus: 1.1
 
+double-drop-chance: 0.05
 bit-bomb-chance: 0.02
 lucky-bit-bomb-chance: 0.04
 

@@ -1,36 +1,39 @@
 /**
  * The MIT License Copyright (c) 2015 Teal Cube Games
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.mint.listeners;
 
 import static org.nunnerycode.mint.MintPlugin.INT_FORMAT;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.bullion.GoldDropEvent;
 import com.tealcube.minecraft.bukkit.bullion.PlayerDeathDropEvent;
+import com.tealcube.minecraft.bukkit.facecore.utilities.FireworkUtil;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import info.faceland.mint.util.MintUtil;
+import io.pixeloutlaw.minecraft.spigot.garbage.StringExtensionsKt;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -43,10 +46,12 @@ public class DeathListener implements Listener {
 
   private final MintPlugin plugin;
   private final List<String> noLossWorlds;
+  private final double doubleDropChance;
 
-  public DeathListener(MintPlugin mintPlugin) {
-    this.plugin = mintPlugin;
-    this.noLossWorlds = plugin.getSettings().getStringList("config.no-loss-worlds");
+  public DeathListener(MintPlugin plugin) {
+    this.plugin = plugin;
+    noLossWorlds = plugin.getSettings().getStringList("config.no-loss-worlds");
+    doubleDropChance = plugin.getSettings().getDouble("config.double-drop-chance", 0.05);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -83,6 +88,7 @@ public class DeathListener implements Listener {
     }
     reward = Math.pow(reward, exponent);
     reward *= 0.75 + ThreadLocalRandom.current().nextDouble() / 2;
+    reward *= Math.random() < doubleDropChance ? 2 : 1;
 
     GoldDropEvent gde = new GoldDropEvent(event.getEntity().getKiller(), event.getEntity(), reward);
     Bukkit.getPluginManager().callEvent(gde);
@@ -104,21 +110,27 @@ public class DeathListener implements Listener {
       while (numberOfDrops > 0) {
         double newReward = reward * (4 + Math.random());
         bombTotal += newReward;
-        MintUtil.spawnCashDrop(event.getEntity().getLocation(), newReward);
+        Item item = MintUtil.spawnCashDrop(event.getEntity().getLocation(), newReward, 2);
+        MintUtil.applyDropProtection(item, event.getEntity().getKiller().getUniqueId(), 400);
         numberOfDrops--;
       }
       String broadcastString = plugin.getSettings().getString("language.bit-bomb-message");
       broadcastString = broadcastString.replace("%player%", event.getEntity().getKiller().getName())
           .replace("%value%", INT_FORMAT.format(bombTotal));
-      Bukkit.broadcastMessage(TextUtils.color(broadcastString));
+      Bukkit.broadcastMessage(StringExtensionsKt.chatColorize(broadcastString));
+      FireworkUtil.spawnFirework(event.getEntity().getLocation(), Type.STAR, Color.YELLOW, Color.ORANGE, false, true);
     } else {
-      MintUtil.spawnCashDrop(event.getEntity().getLocation(), reward);
+      Item item = MintUtil.spawnCashDrop(event.getEntity().getLocation(), reward, 0);
+      MintUtil.applyDropProtection(item, event.getEntity().getKiller().getUniqueId(), 400);
     }
   }
 
   @EventHandler(priority = EventPriority.HIGH)
   public void onPlayerDeathEvent(final PlayerDeathEvent event) {
     if (event.getEntity().getKiller() != null) {
+      return;
+    }
+    if (event.getEntity().getLevel() <= 10) {
       return;
     }
     if (noLossWorlds.contains(event.getEntity().getWorld().getName())) {
@@ -135,10 +147,13 @@ public class DeathListener implements Listener {
     }
 
     double dropAmount = plugin.getEconomy().getBalance(event.getEntity()) - e.getAmountProtected();
-
     if (dropAmount > 0) {
       plugin.getEconomy().setBalance(event.getEntity(), (int) e.getAmountProtected());
-      MintUtil.spawnCashDrop(event.getEntity().getLocation(), dropAmount);
+      Item item = MintUtil.spawnCashDrop(event.getEntity().getLocation(), dropAmount, 0);
+      MintUtil.applyDropProtection(item, event.getEntity().getUniqueId(), 2400);
+      MessageUtils.sendMessage(event.getEntity(),
+          "&e&oYou dropped some Bits! You can pick them back up again, if you get there quickly enough! :O");
+      MessageUtils.sendMessage(event.getEntity(), "&c  -" + INT_FORMAT.format(dropAmount) + " Bits!");
     }
   }
 
